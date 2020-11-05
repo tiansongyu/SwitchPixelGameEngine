@@ -1,0 +1,14 @@
+{
+    "files.exclude": {
+        "**/build": true,
+        "**/out": true,
+        "*.elf": true,
+        "*.nacp": true,
+        "*.nro": true
+    },
+    "files.associations": {
+        "queue": "cpp",
+        "random": "cpp"
+    },
+    "C_Cpp.errorSquiggles": "Enabled"
+}
