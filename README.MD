@@ -29,7 +29,7 @@ You need the one file - SwitchPixelGameEngine.h - included in your project!
 
 Add the following lines in **your** Makefile after `LIBS`  respectively.
 ```
-CFLAGS	+=	`freetype-config --cflags`
+CFLAGS	+=  `freetype-config --cflags`
 LIBS    +=  `freetype-config --libs`
 ```
 
