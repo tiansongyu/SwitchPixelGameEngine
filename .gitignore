@@ -4,3 +4,5 @@
 *.lst
 *.map
 *.nacp
+*.elf
+*.nro

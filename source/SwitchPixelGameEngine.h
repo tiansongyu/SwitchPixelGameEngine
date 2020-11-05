@@ -607,7 +607,10 @@ public:
 			// hidKeysDown returns information about which buttons have been
 			// just pressed in this frame compared to the previous one
 			//按键判断函数
-			u64 kDown = hidKeysDown(CONTROLLER_P1_AUTO);
+			kDown = hidKeysDown(CONTROLLER_P1_AUTO);
+			kHeld = hidKeysHeld(CONTROLLER_P1_AUTO);
+			kUp = hidKeysUp(CONTROLLER_P1_AUTO);
+
 			if (kDown & KEY_PLUS)
 				break;
 			//摁下+键退出
@@ -657,7 +660,6 @@ protected:
 	int block_size_x;
 	int block_size_y;
 
-
 	Framebuffer fb;
 	NWindow *win;
 	u32 stride;
@@ -669,7 +671,8 @@ protected:
 	FT_Library library;
 	FT_Face face;
 
-
+	//keyboards
+	u64 kDown,kHeld,kUp,kDownOld = 0,kHeldOld = 0,kUpOld = 0;
 
 	static u64 LanguageCode;
 	u32 framebuf_width = 0;
