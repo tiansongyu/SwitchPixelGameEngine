@@ -110,8 +110,6 @@ enum COLOUR
 
 //默认switch的屏幕是 1280x720
 //TODO:添加声音播放
-//TODO:添加触摸功能
-//TODO:添加按键控制
 //TODO:添加多线程
 //TODO:整理函数位置结构
 //TODO:RGBA分开存储
