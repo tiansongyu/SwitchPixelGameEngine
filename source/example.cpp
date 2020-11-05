@@ -29,6 +29,18 @@ public:
             if(kUp & KEY_UP) DrawString(0,ScreenWidth()/3,"UP KEY is kUp");
             if(kHeld & KEY_UP) DrawString(0,ScreenWidth()/4,"UP KEY is held");
         }
+        std::string tmp_str;
+        //if  touch_count != prev_touchcount means mouse touch ! 
+        if (touch_count != prev_touchcount)
+        {
+            prev_touchcount = touch_count;
+            //replace here for your code 
+            char t1[10];
+            sprintf(t1,"%d %d",mouse_pos_x ,mouse_pos_y);
+            DrawString(ScreenWidth()/4,ScreenWidth()/4,std::string("mouse pos is ")+std::string(t1));
+            //
+        } 
+
 
         return true;
     }
