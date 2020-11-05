@@ -21,7 +21,7 @@ switch-freetype
 
 ### 2. Add the header file
 
-You need the one file - SwitchPixelGameEngine.h - included in your project!
+You need the one file - **SwitchPixelGameEngine.h** - included in your project!
 
 ### 3. Edit Makefile
 **You'll need the following packages installed through (dkp-)pacman in order for Aether to compile:**
