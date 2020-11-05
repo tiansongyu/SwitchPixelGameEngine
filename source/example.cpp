@@ -13,16 +13,22 @@ public:
     }
     virtual bool OnUserUpdate(float fElapsedTime) override
     {
-
         ClearAll();
 
-        //Fill(0,0,100,100,FG_RED);
-        //Fill(50,50,200, 200,FG_YELLOW);
+        Fill(0,0,100,100,FG_RED);
+        Fill(50,50,200, 200,FG_YELLOW);
 
-        DrawTriangle(20,20,20,60,50,50,FG_YELLOW);
+        DrawTriangle(200,200,300,400,500,500,FG_YELLOW);
+        DrawCircle(300,400,100,FG_GREEN);
 
-        DrawCircle(20,60,10,FG_GREEN);
         DrawString(ScreenWidth()/2, ScreenHeight()/2, s_str);
+
+        if (kDown != kDownOld || kHeld != kHeldOld || kUp != kUpOld)
+        {
+            if(kDown & KEY_UP) DrawString(0,ScreenWidth()/2,"UP KEY is down");
+            if(kUp & KEY_UP) DrawString(0,ScreenWidth()/3,"UP KEY is kUp");
+            if(kHeld & KEY_UP) DrawString(0,ScreenWidth()/4,"UP KEY is held");
+        }
 
         return true;
     }

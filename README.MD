@@ -5,8 +5,12 @@ An easy-to-use PixelGameEngine for Nintendo Switch homebrew game
 
 Curious about what's next? See my to-do list on [Trello](https://trello.com/b/B6yaX5u3/switchpixelgameengine)
 
-## Incorporating into your Project
+# Example 
 
+- **You can find some Demo [from here](https://github.com/tiansongyu/Example_SwitchPixelGameEngine)**
+
+
+## Incorporating into your Project
 ### 1. Install packages through (dkp-)pacman :
 
 ```
@@ -25,8 +29,8 @@ You need the one file - SwitchPixelGameEngine.h - included in your project!
 
 Add the following lines in **your** Makefile after `LIBS`  respectively.
 ```
-CFLAGS	+=	`freetype-config --cflags`
-LIBS    += `freetype-config --libs`
+CFLAGS	+=  `freetype-config --cflags`
+LIBS    +=  `freetype-config --libs`
 ```
 
 ### 4. Done
