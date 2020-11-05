@@ -9,7 +9,6 @@ Curious about what's next? See my to-do list on [Trello](https://trello.com/b/B6
 
 - **You can find some Demo [from here](https://github.com/tiansongyu/Example_SwitchPixelGameEngine)**
 
-
 ## Incorporating into your Project
 ### 1. Install packages through (dkp-)pacman :
 
@@ -52,15 +51,10 @@ Please see https://github.com/tiansongyu/SwitchPixelGameEngine/wiki
 
 # TODO: New Features 
 
-
-
 - 添加声音播放(add audio function)
-- 添加触摸功能 (add touch function)
-- 添加按键控制 (add keyboard function)
 - 添加多线程   (add thread function)
 - 整理函数位置结构 (clean the funcion code)
 - RGBA分开存储 (clean the RGBA code)
-- 增加像素块功能 (add changing the Pixel size funcion)
 - 更换字体颜色和大小 (add changing the font size and color)
 
 
