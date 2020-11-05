@@ -612,7 +612,7 @@ public:
 
 			// hidKeysDown returns information about which buttons have been
 			// just pressed in this frame compared to the previous one
-			//按键判断函数
+			// 按键判断函数
 			kDown = hidKeysDown(CONTROLLER_P1_AUTO);
 			kHeld = hidKeysHeld(CONTROLLER_P1_AUTO);
 			kUp = hidKeysUp(CONTROLLER_P1_AUTO);
@@ -629,17 +629,19 @@ public:
 			mouse_pos_x = touch[0].px;
 			mouse_pos_y = touch[0].py;
 			// Retrieve the framebuffer
-			//建立屏幕缓冲区
+			// 建立屏幕缓冲区
 			framebuf = (u32 *)framebufferBegin(&fb, &stride);
 			framebuf_width = stride / sizeof(u32);
-			//用户接口
+			// 用户接口
 
 			OnUserUpdate(fElapsedTime);
+
+			
 			char s[10];
 			sprintf(s,"%3.2f",1.0f / fElapsedTime);
 			DrawString(500,30,std::string("FPS: ")+std::string(s));
 			// Each pixel is 4-bytes due to RGBA8888.
-			//开始渲染
+			// 开始渲染
 			// We're done rendering, so we end the frame here.
 			framebufferEnd(&fb);
 		}
