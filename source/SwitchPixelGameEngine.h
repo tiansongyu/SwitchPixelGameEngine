@@ -668,6 +668,7 @@ public:
 		framebufferClose(&fb);
 		FT_Done_Face(face);
 		FT_Done_FreeType(library);
+		plExit();
 		delete[] framebuf;
 	}
 protected:
