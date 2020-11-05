@@ -612,7 +612,9 @@ public:
 
 			// hidKeysDown returns information about which buttons have been
 			// just pressed in this frame compared to the previous one
+      
 			// 按键判断函数
+      
 			kDown = hidKeysDown(CONTROLLER_P1_AUTO);
 			kHeld = hidKeysHeld(CONTROLLER_P1_AUTO);
 			kUp = hidKeysUp(CONTROLLER_P1_AUTO);
@@ -675,6 +677,7 @@ protected:
 	int block_size_y;
 
 	Framebuffer fb;
+  u32 framebuf_width = 0;
 	NWindow *win;
 	u32 stride;
 	u32 *framebuf;
@@ -687,12 +690,13 @@ protected:
 
 	//keyboards
 	u64 kDown,kHeld,kUp,kDownOld = 0,kHeldOld = 0,kUpOld = 0;
-
+  
 	//touchPosition
 	touchPosition* touch;
 	u32 touch_count,prev_touchcount = 0;
 	int mouse_pos_x ,mouse_pos_y;
 
+  //language
 	static u64 LanguageCode;
-	u32 framebuf_width = 0;
+
 };

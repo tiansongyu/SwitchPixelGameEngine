@@ -14,8 +14,7 @@ public:
     virtual bool OnUserUpdate(float fElapsedTime) override
     {
         ClearAll();
-
-
+        
         /**********************************************************************************/
         // Draw and Fill graphics 
         Fill(0,0,100,100,FG_RED);
@@ -23,14 +22,17 @@ public:
 
         DrawTriangle(200,200,300,400,500,500,FG_YELLOW);
 
+
         DrawCircle(300,400,100,FG_GREEN);
 
         DrawString(ScreenWidth()/2, ScreenHeight()/2, s_str);
         /**********************************************************************************/
 
 
+
         /**********************************************************************************/
         //keyboard input 
+
         if (kDown != kDownOld || kHeld != kHeldOld || kUp != kUpOld)
         {
             if(kDown & KEY_UP) DrawString(0,ScreenWidth()/2,"UP KEY is down");
@@ -53,9 +55,9 @@ public:
         char t1[10];
         sprintf(t1,"%d %d",mouse_pos_x ,mouse_pos_y);
         DrawString(mouse_pos_x,mouse_pos_y,std::string("mouse pos is ")+std::string(t1));
-        return true;
         /**********************************************************************************/
 
+       return true;
     }
 };
 

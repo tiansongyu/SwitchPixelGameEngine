@@ -9,7 +9,6 @@ Curious about what's next? See my to-do list on [Trello](https://trello.com/b/B6
 
 - **You can find some Demo [from here](https://github.com/tiansongyu/Example_SwitchPixelGameEngine)**
 
-
 ## Incorporating into your Project
 ### 1. Install packages through (dkp-)pacman :
 
