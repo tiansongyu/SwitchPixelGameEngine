@@ -110,8 +110,6 @@ enum COLOUR
 
 //默认switch的屏幕是 1280x720
 //TODO:添加声音播放
-//TODO:添加触摸功能
-//TODO:添加按键控制
 //TODO:添加多线程
 //TODO:整理函数位置结构
 //TODO:RGBA分开存储
@@ -134,7 +132,7 @@ public:
 
 public:
 
-	virtual void Draw(int x, int y, int rgba)
+	virtual void Draw(int x, int y, const u32 rgba)
 	{
 		if (x >= 0 && x < m_nScreenWidth && y >= 0 && y < m_nScreenHeight)
 		{
@@ -145,7 +143,7 @@ public:
 
 	}
 
-	void Fill(int x1, int y1, int x2, int y2, int rgba)
+	void Fill(int x1, int y1, int x2, int y2, const u32 rgba)
 	{
 		Clip(x1, y1);
 		Clip(x2, y2);
@@ -154,7 +152,7 @@ public:
 				Draw(x, y, rgba);
 	}
 
-	void DrawCircle(int xc, int yc, int r, int rgba = FG_RED)
+	void DrawCircle(int xc, int yc, int r, const u32 rgba = FG_RED)
 	{
 		int x = 0;
 		int y = r;
@@ -179,7 +177,7 @@ public:
 		}
 	}
 
-	void FillCircle(int xc, int yc, int r, int rgba = FG_RED)
+	void FillCircle(int xc, int yc, int r, const u32 rgba = FG_RED)
 	{
 		// Taken from wikipedia
 		int x = 0;
@@ -206,14 +204,14 @@ public:
 				p += 4 * (x++ - y--) + 10;
 		}
 	};
-	void DrawTriangle(int x1, int y1, int x2, int y2, int x3, int y3, int rgba = FG_RED)
+	void DrawTriangle(int x1, int y1, int x2, int y2, int x3, int y3, const u32 rgba = FG_RED)
 	{
 		DrawLine(x1, y1, x2, y2, rgba);
 		DrawLine(x2, y2, x3, y3, rgba);
 		DrawLine(x3, y3, x1, y1, rgba);
 	}
 	//Thanks to https://www.avrfreaks.net/sites/default/files/triangles.c
-	void FillTriangle(int x1, int y1, int x2, int y2, int x3, int y3, int rgba = FG_RED)
+	void FillTriangle(int x1, int y1, int x2, int y2, int x3, int y3, const u32 rgba = FG_RED)
 	{
 		auto SWAP = [](int& x, int& y) { int t = x; x = y; y = t; };
 		auto drawline = [&](int sx, int ex, int ny) { for (int i = sx; i <= ex; i++) Draw(i, ny,rgba); };
@@ -348,7 +346,7 @@ public:
 			if (y > y3) return;
 		}
 	}
-	void DrawLine(int x1, int y1, int x2, int y2, int rgba)
+	void DrawLine(int x1, int y1, int x2, int y2, const u32 rgba = FG_RED)
 	{
 		int x, y, dx, dy, dx1, dy1, px, py, xe, ye, i;
 		dx = x2 - x1;
@@ -538,7 +536,6 @@ public:
 		*/
 		// Use this when you want to use specific shared-font(s). Since this example only uses 1 font, only the font loaded by this will be used.
 
-		plInitialize(PlServiceType_User);
 
 		rc = plGetSharedFontByType(&font, PlSharedFontType_Standard);
 		ret = FT_Init_FreeType(&library);
@@ -569,6 +566,7 @@ public:
 				framebuf[pos] = 0x00000000; //Set framebuf to different shades of grey.
 			}
 		}
+		memset(framebuf,0x0,m_nScreenWidth * m_nScreenHeight *sizeof(u32));
 	}
 	int ConstructConsole(int width,int height,int fontw,int fonth)
 	{
@@ -577,10 +575,12 @@ public:
 		block_size_x = fontw;
 		block_size_y = fonth;
 		mouse_pos_x = 0 ;
-		mouse_pos_y = 0 ;		
+		mouse_pos_y = 0 ;
 		//init mouse pos
 
 		touch = new touchPosition[5];
+		plInitialize(PlServiceType_User);
+
 
 		//init windows
 		win = nwindowGetDefault();
@@ -628,8 +628,12 @@ public:
 			{
 				hidTouchRead(&touch[i], i);
 			}
-			mouse_pos_x = touch[0].px;
-			mouse_pos_y = touch[0].py;
+
+			if(touch[0].px >=0 && touch[0].px < 1280)
+				mouse_pos_x = touch[0].px;
+			if(touch[0].py >=0 && touch[0].py < 720)
+				mouse_pos_y = touch[0].py;
+
 			// Retrieve the framebuffer
 			// 建立屏幕缓冲区
 			framebuf = (u32 *)framebufferBegin(&fb, &stride);
@@ -668,7 +672,8 @@ public:
 		framebufferClose(&fb);
 		FT_Done_Face(face);
 		FT_Done_FreeType(library);
-		delete[] framebuf;
+		plExit();
+		delete[] touch;
 	}
 protected:
 	int m_nScreenWidth;
@@ -677,6 +682,7 @@ protected:
 	int block_size_y;
 
 	Framebuffer fb;
+
   u32 framebuf_width = 0;
 	NWindow *win;
 	u32 stride;

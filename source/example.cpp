@@ -29,7 +29,6 @@ public:
         /**********************************************************************************/
 
 
-
         /**********************************************************************************/
         //keyboard input 
 
@@ -51,10 +50,12 @@ public:
             //replace here for your code 
 
         } 
+        
         //and delete this 
-        char t1[10];
+        char t1[20];
         sprintf(t1,"%d %d",mouse_pos_x ,mouse_pos_y);
-        DrawString(mouse_pos_x,mouse_pos_y,std::string("mouse pos is ")+std::string(t1));
+        DrawString(ScreenWidth()/2,ScreenWidth()/3,std::string("mouse pos is") + std::string(t1));
+
         /**********************************************************************************/
 
        return true;
