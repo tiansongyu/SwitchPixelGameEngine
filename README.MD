@@ -50,14 +50,14 @@ Provides a fast, richly featured, cross platform pixel drawing and user interfac
 # Documentation (WIP)
 Please see https://github.com/tiansongyu/SwitchPixelGameEngine/wiki
 
-# TODO: New Features 
+# TODO: Features 
 
 - 添加声音播放(add audio function)
 - 添加多线程   (add thread function)
 - 整理函数位置结构 (clean the funcion code)
 - RGBA分开存储 (clean the RGBA code)
 - 更换字体颜色和大小 (add changing the font size and color)
-
+- 更换分辨率(change the resolving power option)
 
 
 # Credits
