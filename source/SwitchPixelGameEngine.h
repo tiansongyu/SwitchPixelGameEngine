@@ -536,7 +536,6 @@ public:
 		*/
 		// Use this when you want to use specific shared-font(s). Since this example only uses 1 font, only the font loaded by this will be used.
 
-		plInitialize(PlServiceType_User);
 
 		rc = plGetSharedFontByType(&font, PlSharedFontType_Standard);
 		ret = FT_Init_FreeType(&library);
@@ -567,6 +566,7 @@ public:
 				framebuf[pos] = 0x00000000; //Set framebuf to different shades of grey.
 			}
 		}
+		memset(framebuf,0x0,m_nScreenWidth * m_nScreenHeight *sizeof(u32));
 	}
 	int ConstructConsole(int width,int height,int fontw,int fonth)
 	{
@@ -579,6 +579,7 @@ public:
 		//init mouse pos
 
 		touch = new touchPosition[5];
+		plInitialize(PlServiceType_User);
 
 		//init windows
 		win = nwindowGetDefault();
@@ -626,8 +627,11 @@ public:
 			{
 				hidTouchRead(&touch[i], i);
 			}
-			mouse_pos_x = touch[0].px;
-			mouse_pos_y = touch[0].py;
+
+			if(touch[0].px >=0 && touch[0].px < 1280)
+				mouse_pos_x = touch[0].px;
+			if(touch[0].py >=0 && touch[0].py < 720)
+				mouse_pos_y = touch[0].py;
 			// Retrieve the framebuffer
 			// 建立屏幕缓冲区
 			framebuf = (u32 *)framebufferBegin(&fb, &stride);
@@ -667,7 +671,7 @@ public:
 		FT_Done_Face(face);
 		FT_Done_FreeType(library);
 		plExit();
-		delete[] framebuf;
+		delete[] touch;
 	}
 protected:
 	int m_nScreenWidth;
