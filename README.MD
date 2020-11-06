@@ -49,8 +49,17 @@ Provides a fast, richly featured, cross platform pixel drawing and user interfac
 # Documentation (WIP)
 Please see https://github.com/tiansongyu/SwitchPixelGameEngine/wiki
 
-# TODO: Features 
+# Features 
 
+
+- 基本图形函数(basic graphic function)
+- 文字显示(display strings)
+- 帧率显示(display FPS)
+- 按键控制(keyboard input)
+- 触屏控制(touch input)
+- 更改像素块大小(change the size of pixel)
+- 更改分辨率 (chage the image resolution)
+# TODO: Features 
 
 - 添加声音播放(add audio function)
 - 添加多线程   (add thread function)

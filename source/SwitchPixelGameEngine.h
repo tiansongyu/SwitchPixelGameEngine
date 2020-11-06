@@ -683,8 +683,4 @@ protected:
 	touchPosition* touch;
 	u32 touch_count,prev_touchcount = 0;
 	int mouse_pos_x ,mouse_pos_y;
-
-  //language
-	static u64 LanguageCode;
-
 };
