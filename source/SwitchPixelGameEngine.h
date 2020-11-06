@@ -128,6 +128,8 @@ public:
 		m_nScreenHeight = FB_HEIGHT;
 		block_size_x = 1;
 		block_size_y = 1;
+		mouse_pos_x = 0 ;
+		mouse_pos_y = 0 ;
 	}
 
 public:
@@ -138,7 +140,7 @@ public:
 		{
 			for(int dx = 0; dx < block_size_x ; dx++)
 				for(int dy =0; dy < block_size_y ; dy++)
-					framebuf[(y* block_size_y + dy) * m_nScreenWidth + (x * block_size_x + dx)] = rgba;
+					framebuf[(y* block_size_y + dy) * FB_WIDTH + (x * block_size_x + dx)] = rgba;
 		}
 
 	}
@@ -279,8 +281,10 @@ public:
 				else              t2x += signx2;
 			}
 		next2:
-			if (minx > t1x) minx = t1x; if (minx > t2x) minx = t2x;
-			if (maxx < t1x) maxx = t1x; if (maxx < t2x) maxx = t2x;
+			if (minx > t1x) minx = t1x; 
+			if (minx > t2x) minx = t2x;
+			if (maxx < t1x) maxx = t1x; 
+			if (maxx < t2x) maxx = t2x;
 			drawline(minx, maxx, y);    // Draw line from min to max points found on the y
 										// Now increase y
 			if (!changed1) t1x += signx1;
@@ -288,7 +292,8 @@ public:
 			if (!changed2) t2x += signx2;
 			t2x += t2xp;
 			y += 1;
-			if (y == y2) break;
+			if (y == y2) 
+			break;
 
 		}
 	next:
@@ -335,8 +340,10 @@ public:
 				else              t2x += signx2;
 			}
 		next4:
-			if (minx > t1x) minx = t1x; if (minx > t2x) minx = t2x;
-			if (maxx < t1x) maxx = t1x; if (maxx < t2x) maxx = t2x;
+			if (minx > t1x) minx = t1x;
+			if (minx > t2x) minx = t2x;
+			if (maxx < t1x) maxx = t1x;
+			if (maxx < t2x) maxx = t2x;
 			drawline(minx, maxx, y);
 			if (!changed1) t1x += signx1;
 			t1x += t1xp;
@@ -509,21 +516,6 @@ public:
 		}
 	}
 
-	static u64 getSystemLanguage(void)
-	{
-		Result rc;
-		u64 code = 0;
-
-		rc = setInitialize();
-		if (R_SUCCEEDED(rc))
-		{
-			rc = setGetSystemLanguage(&code);
-			setExit();
-		}
-
-		return R_SUCCEEDED(rc) ? code : 0;
-	}
-
 	void FontInit()
 	{
 		//Use this when using multiple shared-fonts.
@@ -535,9 +527,9 @@ public:
 			return error_screen("plGetSharedFont() failed: 0x%x\n", rc);
 		*/
 		// Use this when you want to use specific shared-font(s). Since this example only uses 1 font, only the font loaded by this will be used.
-
-
 		rc = plGetSharedFontByType(&font, PlSharedFontType_Standard);
+		if (R_FAILED(rc))
+        	fatalThrow(rc);
 		ret = FT_Init_FreeType(&library);
 		ret = FT_New_Memory_Face(library,
 								 (const FT_Byte *)font.address, /* first byte in memory */
@@ -558,15 +550,7 @@ public:
 	}
 	void ClearAll()
 	{
-		for (u32 y = 0; y < m_nScreenHeight; y++)
-		{
-			for (u32 x = 0; x < m_nScreenWidth; x++)
-			{
-				u32 pos = y * stride / sizeof(u32) + x;
-				framebuf[pos] = 0x00000000; //Set framebuf to different shades of grey.
-			}
-		}
-		memset(framebuf,0x0,m_nScreenWidth * m_nScreenHeight *sizeof(u32));
+		memset(framebuf,0x0,FB_WIDTH * FB_HEIGHT *sizeof(u32));
 	}
 	int ConstructConsole(int width,int height,int fontw,int fonth)
 	{
@@ -574,8 +558,6 @@ public:
 		m_nScreenHeight = height;
 		block_size_x = fontw;
 		block_size_y = fonth;
-		mouse_pos_x = 0 ;
-		mouse_pos_y = 0 ;
 		//init mouse pos
 
 		touch = new touchPosition[5];
@@ -612,9 +594,9 @@ public:
 
 			// hidKeysDown returns information about which buttons have been
 			// just pressed in this frame compared to the previous one
-      
+        
 			// 按键判断函数
-      
+        
 			kDown = hidKeysDown(CONTROLLER_P1_AUTO);
 			kHeld = hidKeysHeld(CONTROLLER_P1_AUTO);
 			kUp = hidKeysUp(CONTROLLER_P1_AUTO);
@@ -624,7 +606,7 @@ public:
 
 			touch_count = hidTouchCount();
 			//摁下+键退出
-			for(int i=0; i<touch_count; i++)
+			for(u32 i=0; i<touch_count; i++)
 			{
 				hidTouchRead(&touch[i], i);
 			}
@@ -683,12 +665,12 @@ protected:
 
 	Framebuffer fb;
 
-  u32 framebuf_width = 0;
+    u32 framebuf_width = 0;
 	NWindow *win;
 	u32 stride;
 	u32 *framebuf;
 	//font
-	Result rc = 0;
+	Result rc ;
 	FT_Error ret = 0;
 	PlFontData font;
 	FT_Library library;

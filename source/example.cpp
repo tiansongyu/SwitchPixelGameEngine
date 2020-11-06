@@ -17,14 +17,10 @@ public:
         
         /**********************************************************************************/
         // Draw and Fill graphics 
-        Fill(0,0,100,100,FG_RED);
-        Fill(50,50,200, 200,FG_YELLOW);
-
-        DrawTriangle(200,200,300,400,500,500,FG_YELLOW);
-
-
-        DrawCircle(300,400,100,FG_GREEN);
-
+        Fill(0,0,ScreenWidth()/10,ScreenHeight()/10,FG_RED);
+        Fill(ScreenWidth()/10,ScreenHeight()/10,ScreenWidth()/2, ScreenHeight()/2,FG_YELLOW);
+        DrawTriangle(ScreenWidth()/2,ScreenHeight()/2,ScreenWidth()/3,ScreenHeight()/3,ScreenWidth()/4,ScreenHeight()/4,FG_YELLOW);
+        DrawCircle(ScreenWidth()/2,ScreenHeight()/2,ScreenWidth()/10,FG_GREEN);
         DrawString(ScreenWidth()/2, ScreenHeight()/2, s_str);
         /**********************************************************************************/
 
@@ -67,4 +63,5 @@ int main()
     Demo example;
     example.ConstructConsole(1280,720,1,1);
     example.GameThread();
+    return 0;
 }
