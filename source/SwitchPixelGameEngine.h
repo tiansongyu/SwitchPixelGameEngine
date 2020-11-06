@@ -581,6 +581,7 @@ public:
 		touch = new touchPosition[5];
 		plInitialize(PlServiceType_User);
 
+
 		//init windows
 		win = nwindowGetDefault();
 		framebufferCreate(&fb, win, FB_WIDTH, FB_HEIGHT, PIXEL_FORMAT_RGBA_8888, 2);
@@ -632,6 +633,7 @@ public:
 				mouse_pos_x = touch[0].px;
 			if(touch[0].py >=0 && touch[0].py < 720)
 				mouse_pos_y = touch[0].py;
+
 			// Retrieve the framebuffer
 			// 建立屏幕缓冲区
 			framebuf = (u32 *)framebufferBegin(&fb, &stride);
@@ -680,7 +682,8 @@ protected:
 	int block_size_y;
 
 	Framebuffer fb;
-  	u32 framebuf_width = 0;
+
+  u32 framebuf_width = 0;
 	NWindow *win;
 	u32 stride;
 	u32 *framebuf;
