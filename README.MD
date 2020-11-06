@@ -9,7 +9,6 @@ Curious about what's next? See my to-do list on [Trello](https://trello.com/b/B6
 
 - **You can find some Demo [from here](https://github.com/tiansongyu/Example_SwitchPixelGameEngine)**
 
-
 ## Incorporating into your Project
 ### 1. Install packages through (dkp-)pacman :
 
@@ -22,7 +21,7 @@ switch-freetype
 
 ### 2. Add the header file
 
-You need the one file - SwitchPixelGameEngine.h - included in your project!
+You need the one file - **SwitchPixelGameEngine.h** - included in your project!
 
 ### 3. Edit Makefile
 **You'll need the following packages installed through (dkp-)pacman in order for Aether to compile:**
