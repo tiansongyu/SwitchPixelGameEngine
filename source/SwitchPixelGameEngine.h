@@ -594,28 +594,53 @@ public:
 
 			// hidKeysDown returns information about which buttons have been
 			// just pressed in this frame compared to the previous one
-        
+			/*****************************************************************/
 			// 按键判断函数
-        
 			kDown = hidKeysDown(CONTROLLER_P1_AUTO);
 			kHeld = hidKeysHeld(CONTROLLER_P1_AUTO);
 			kUp = hidKeysUp(CONTROLLER_P1_AUTO);
 
 			if (kDown & KEY_PLUS)
 				break;
-
+			/*****************************************************************/
+			//touch input
 			touch_count = hidTouchCount();
-			//摁下+键退出
-			for(u32 i=0; i<touch_count; i++)
+			//不知道当touch_count大于0时代表的值是什么，所以先处理0⑧
+			if(touch_count == 0 && prev_touchcount >0)
 			{
-				hidTouchRead(&touch[i], i);
+				m_mouse[0].bReleased = true;
 			}
+			else m_mouse[0].bReleased = false;
 
-			if(touch[0].px >=0 && touch[0].px < 1280)
-				mouse_pos_x = touch[0].px;
-			if(touch[0].py >=0 && touch[0].py < 720)
-				mouse_pos_y = touch[0].py;
+			if(touch_count != 0 || prev_touchcount != 0)
+			{
 
+				for(u32 i = 0 ;i<touch_count ;i++)
+				{
+					//update pos
+					hidTouchRead(&touch[i],i);
+					if(touch[i].px >=0 && touch[i].px < 1280)
+						mouse_pos_x = touch[0].px;
+					if(touch[i].py >=0 && touch[i].py < 720)
+						mouse_pos_y = touch[i].py;
+					//end
+					if(prev_touchcount == 0 && touch_count > 0)
+					{
+						m_mouse[i].bPressed = true;
+						m_mouse[i].bHeld = false;
+						m_mouse[i].bReleased = false;
+					}
+					else if(prev_touchcount > 0 && touch_count > 0)
+					{
+						m_mouse[i].bPressed = false;
+						m_mouse[i].bHeld = true;
+						m_mouse[i].bReleased = false;
+					}
+				}
+
+			}
+			prev_touchcount = touch_count;
+			/*****************************************************************/
 			// Retrieve the framebuffer
 			// 建立屏幕缓冲区
 			framebuf = (u32 *)framebufferBegin(&fb, &stride);
@@ -623,7 +648,6 @@ public:
 			// 用户接口
 
 			OnUserUpdate(fElapsedTime);
-
 			
 			char s[10];
 			sprintf(s,"%3.2f",1.0f / fElapsedTime);
@@ -678,9 +702,16 @@ protected:
 
 	//keyboards
 	u64 kDown,kHeld,kUp,kDownOld = 0,kHeldOld = 0,kUpOld = 0;
-  
+
 	//touchPosition
 	touchPosition* touch;
 	u32 touch_count,prev_touchcount = 0;
 	int mouse_pos_x ,mouse_pos_y;
+	//
+	struct sKeyState
+	{
+		bool bPressed;
+		bool bReleased;
+		bool bHeld;
+	}m_mouse[5];
 };

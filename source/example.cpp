@@ -7,6 +7,7 @@ public:
     {
     }
     std::string s_str = "hello world !";
+    int sum =0;
     virtual bool OnUserCreate() override
     {
         return true;
@@ -24,36 +25,24 @@ public:
         DrawString(ScreenWidth()/2, ScreenHeight()/2, s_str);
         /**********************************************************************************/
 
-
         /**********************************************************************************/
         //keyboard input 
-
         if (kDown != kDownOld || kHeld != kHeldOld || kUp != kUpOld)
         {
-            if(kDown & KEY_UP) DrawString(0,ScreenWidth()/2,"UP KEY is down");
-            if(kUp & KEY_UP) DrawString(0,ScreenWidth()/3,"UP KEY is kUp");
-            if(kHeld & KEY_UP) DrawString(0,ScreenWidth()/4,"UP KEY is held");
+            if(kDown & KEY_UP) DrawString(0,ScreenHeight()/2,"UP KEY is down");
+            if(kUp & KEY_UP) DrawString(0,ScreenHeight()/3,"UP KEY is kUp");
+            if(kHeld & KEY_UP) DrawString(0,ScreenHeight()/4,"UP KEY is held");
         }
         /**********************************************************************************/
-
-
         /**********************************************************************************/
         //mouse input
-        //if  touch_count != prev_touchcount means mouse touch ! 
-        if (touch_count != prev_touchcount)
+        if(m_mouse[0].bReleased)
         {
-            prev_touchcount = touch_count;
-            //replace here for your code 
-
-        } 
-        
-        //and delete this 
+            sum++;
+        }
         char t1[20];
-        sprintf(t1,"%d %d",mouse_pos_x ,mouse_pos_y);
-        DrawString(ScreenWidth()/2,ScreenWidth()/3,std::string("mouse pos is") + std::string(t1));
-
-        /**********************************************************************************/
-
+        sprintf(t1,"%d",sum);
+        DrawString(ScreenWidth()/2,ScreenHeight()/3,std::string("mouse pos is") + std::string(t1));
         /**********************************************************************************/
         return true;
     }
