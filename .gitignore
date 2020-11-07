@@ -6,3 +6,4 @@
 *.nacp
 *.elf
 *.nro
+.vscode/settings.json

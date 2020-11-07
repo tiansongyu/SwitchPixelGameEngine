@@ -128,6 +128,8 @@ public:
 		m_nScreenHeight = FB_HEIGHT;
 		block_size_x = 1;
 		block_size_y = 1;
+		mouse_pos_x = 0 ;
+		mouse_pos_y = 0 ;
 	}
 
 public:
@@ -138,7 +140,7 @@ public:
 		{
 			for(int dx = 0; dx < block_size_x ; dx++)
 				for(int dy =0; dy < block_size_y ; dy++)
-					framebuf[(y* block_size_y + dy) * m_nScreenWidth + (x * block_size_x + dx)] = rgba;
+					framebuf[(y* block_size_y + dy) * FB_WIDTH + (x * block_size_x + dx)] = rgba;
 		}
 
 	}
@@ -279,8 +281,10 @@ public:
 				else              t2x += signx2;
 			}
 		next2:
-			if (minx > t1x) minx = t1x; if (minx > t2x) minx = t2x;
-			if (maxx < t1x) maxx = t1x; if (maxx < t2x) maxx = t2x;
+			if (minx > t1x) minx = t1x; 
+			if (minx > t2x) minx = t2x;
+			if (maxx < t1x) maxx = t1x; 
+			if (maxx < t2x) maxx = t2x;
 			drawline(minx, maxx, y);    // Draw line from min to max points found on the y
 										// Now increase y
 			if (!changed1) t1x += signx1;
@@ -288,7 +292,8 @@ public:
 			if (!changed2) t2x += signx2;
 			t2x += t2xp;
 			y += 1;
-			if (y == y2) break;
+			if (y == y2) 
+			break;
 
 		}
 	next:
@@ -335,8 +340,10 @@ public:
 				else              t2x += signx2;
 			}
 		next4:
-			if (minx > t1x) minx = t1x; if (minx > t2x) minx = t2x;
-			if (maxx < t1x) maxx = t1x; if (maxx < t2x) maxx = t2x;
+			if (minx > t1x) minx = t1x;
+			if (minx > t2x) minx = t2x;
+			if (maxx < t1x) maxx = t1x;
+			if (maxx < t2x) maxx = t2x;
 			drawline(minx, maxx, y);
 			if (!changed1) t1x += signx1;
 			t1x += t1xp;
@@ -509,21 +516,6 @@ public:
 		}
 	}
 
-	static u64 getSystemLanguage(void)
-	{
-		Result rc;
-		u64 code = 0;
-
-		rc = setInitialize();
-		if (R_SUCCEEDED(rc))
-		{
-			rc = setGetSystemLanguage(&code);
-			setExit();
-		}
-
-		return R_SUCCEEDED(rc) ? code : 0;
-	}
-
 	void FontInit()
 	{
 		//Use this when using multiple shared-fonts.
@@ -536,8 +528,9 @@ public:
 		*/
 		// Use this when you want to use specific shared-font(s). Since this example only uses 1 font, only the font loaded by this will be used.
 
-
 		rc = plGetSharedFontByType(&font, PlSharedFontType_Standard);
+		if (R_FAILED(rc))
+        	fatalThrow(rc);
 		ret = FT_Init_FreeType(&library);
 		ret = FT_New_Memory_Face(library,
 								 (const FT_Byte *)font.address, /* first byte in memory */
@@ -558,15 +551,7 @@ public:
 	}
 	void ClearAll()
 	{
-		for (u32 y = 0; y < m_nScreenHeight; y++)
-		{
-			for (u32 x = 0; x < m_nScreenWidth; x++)
-			{
-				u32 pos = y * stride / sizeof(u32) + x;
-				framebuf[pos] = 0x00000000; //Set framebuf to different shades of grey.
-			}
-		}
-		memset(framebuf,0x0,m_nScreenWidth * m_nScreenHeight *sizeof(u32));
+		memset(framebuf,0x0,FB_WIDTH * FB_HEIGHT *sizeof(u32));
 	}
 	int ConstructConsole(int width,int height,int fontw,int fonth)
 	{
@@ -574,8 +559,6 @@ public:
 		m_nScreenHeight = height;
 		block_size_x = fontw;
 		block_size_y = fonth;
-		mouse_pos_x = 0 ;
-		mouse_pos_y = 0 ;
 		//init mouse pos
 
 		touch = new touchPosition[5];
@@ -612,28 +595,35 @@ public:
 
 			// hidKeysDown returns information about which buttons have been
 			// just pressed in this frame compared to the previous one
-      
+			/*****************************************************************/
 			// 按键判断函数
-      
 			kDown = hidKeysDown(CONTROLLER_P1_AUTO);
 			kHeld = hidKeysHeld(CONTROLLER_P1_AUTO);
 			kUp = hidKeysUp(CONTROLLER_P1_AUTO);
 
 			if (kDown & KEY_PLUS)
 				break;
-
+			/*****************************************************************/
+			//touch input
 			touch_count = hidTouchCount();
-			//摁下+键退出
-			for(int i=0; i<touch_count; i++)
+			//不知道当touch_count大于0时代表的值是什么，所以先处理0⑧
+			//当抬起时，touch_count为零，此时不能进入for循环，所以写在循环之外
+			if(touch_count == 0 && prev_touchcount >0)m_mouse[0].bReleased = true;
+			else m_mouse[0].bReleased = false;
+			if(touch_count != 0 || prev_touchcount != 0)
 			{
-				hidTouchRead(&touch[i], i);
+				for(u32 i = 0 ;i<touch_count ;i++)
+				{
+					//update pos
+					hidTouchRead(&touch[i],i);
+					if(touch[i].px >=0 && touch[i].px < 1280)mouse_pos_x = touch[0].px;
+					if(touch[i].py >=0 && touch[i].py < 720)mouse_pos_y = touch[i].py;
+					//end
+					if(prev_touchcount == 0 && touch_count > 0){m_mouse[i].bPressed = true;m_mouse[i].bHeld = false;m_mouse[i].bReleased = false;}
+					else if(prev_touchcount > 0 && touch_count > 0){m_mouse[i].bPressed = false;m_mouse[i].bHeld = true;m_mouse[i].bReleased = false;}
+				}
 			}
-
-			if(touch[0].px >=0 && touch[0].px < 1280)
-				mouse_pos_x = touch[0].px;
-			if(touch[0].py >=0 && touch[0].py < 720)
-				mouse_pos_y = touch[0].py;
-
+			/*****************************************************************/
 			// Retrieve the framebuffer
 			// 建立屏幕缓冲区
 			framebuf = (u32 *)framebufferBegin(&fb, &stride);
@@ -641,7 +631,6 @@ public:
 			// 用户接口
 
 			OnUserUpdate(fElapsedTime);
-
 			
 			char s[10];
 			sprintf(s,"%3.2f",1.0f / fElapsedTime);
@@ -653,6 +642,14 @@ public:
 		}
 	}
 
+	bool MousebPressed() {return m_mouse[0].bPressed;}
+	bool MousebHeld() {return m_mouse[0].bHeld;}
+	bool MousebReleased() {return m_mouse[0].bReleased;}
+
+	bool KeyDown(HidControllerKeys key) {return (kDown & key);}
+	bool KeyHeld(HidControllerKeys key) {return (kHeld & key);}
+	bool KeyUp(HidControllerKeys key) {return (kUp & key);}
+
 	int ScreenWidth()
 	{
 		return m_nScreenWidth;
@@ -661,7 +658,6 @@ public:
 	{
 		return m_nScreenHeight;
 	}
-
 
 public:
 	virtual bool OnUserCreate() = 0;
@@ -682,27 +678,29 @@ protected:
 	int block_size_y;
 
 	Framebuffer fb;
-
   u32 framebuf_width = 0;
 	NWindow *win;
 	u32 stride;
 	u32 *framebuf;
 	//font
-	Result rc = 0;
+	Result rc ;
 	FT_Error ret = 0;
 	PlFontData font;
 	FT_Library library;
 	FT_Face face;
 
 	//keyboards
-	u64 kDown,kHeld,kUp,kDownOld = 0,kHeldOld = 0,kUpOld = 0;
-  
+	u64 kDown,kHeld,kUp;
+
 	//touchPosition
 	touchPosition* touch;
 	u32 touch_count,prev_touchcount = 0;
 	int mouse_pos_x ,mouse_pos_y;
-
-  //language
-	static u64 LanguageCode;
-
+	//
+	struct sKeyState
+	{
+		bool bPressed;
+		bool bReleased;
+		bool bHeld;
+	}m_mouse[5];
 };
