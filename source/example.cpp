@@ -15,7 +15,6 @@ public:
     virtual bool OnUserUpdate(float fElapsedTime) override
     {
         ClearAll();
-        
         /**********************************************************************************/
         // Draw and Fill graphics 
         Fill(0,0,ScreenWidth()/10,ScreenHeight()/10,FG_RED);
@@ -24,19 +23,13 @@ public:
         DrawCircle(ScreenWidth()/2,ScreenHeight()/2,ScreenWidth()/10,FG_GREEN);
         DrawString(ScreenWidth()/2, ScreenHeight()/2, s_str);
         /**********************************************************************************/
-
-        /**********************************************************************************/
         //keyboard input 
-        if (kDown != kDownOld || kHeld != kHeldOld || kUp != kUpOld)
-        {
-            if(kDown & KEY_UP) DrawString(0,ScreenHeight()/2,"UP KEY is down");
-            if(kUp & KEY_UP) DrawString(0,ScreenHeight()/3,"UP KEY is kUp");
-            if(kHeld & KEY_UP) DrawString(0,ScreenHeight()/4,"UP KEY is held");
-        }
-        /**********************************************************************************/
+        if(KeyDown(KEY_UP)) DrawString(0,ScreenHeight()/2,"UP KEY is down");
+        if(KeyUp(KEY_UP)) DrawString(0,ScreenHeight()/3,"UP KEY is kUp");
+        if(KeyHeld(KEY_UP)) DrawString(0,ScreenHeight()/4,"UP KEY is held");
         /**********************************************************************************/
         //mouse input
-        if(m_mouse[0].bReleased)
+        if(MousebReleased())
         {
             sum++;
         }

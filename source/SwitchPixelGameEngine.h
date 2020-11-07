@@ -606,38 +606,21 @@ public:
 			//touch input
 			touch_count = hidTouchCount();
 			//不知道当touch_count大于0时代表的值是什么，所以先处理0⑧
-			if(touch_count == 0 && prev_touchcount >0)
-			{
-				m_mouse[0].bReleased = true;
-			}
+			//当抬起时，touch_count为零，此时不能进入for循环，所以写在循环之外
+			if(touch_count == 0 && prev_touchcount >0)m_mouse[0].bReleased = true;
 			else m_mouse[0].bReleased = false;
-
 			if(touch_count != 0 || prev_touchcount != 0)
 			{
-
 				for(u32 i = 0 ;i<touch_count ;i++)
 				{
 					//update pos
 					hidTouchRead(&touch[i],i);
-					if(touch[i].px >=0 && touch[i].px < 1280)
-						mouse_pos_x = touch[0].px;
-					if(touch[i].py >=0 && touch[i].py < 720)
-						mouse_pos_y = touch[i].py;
+					if(touch[i].px >=0 && touch[i].px < 1280)mouse_pos_x = touch[0].px;
+					if(touch[i].py >=0 && touch[i].py < 720)mouse_pos_y = touch[i].py;
 					//end
-					if(prev_touchcount == 0 && touch_count > 0)
-					{
-						m_mouse[i].bPressed = true;
-						m_mouse[i].bHeld = false;
-						m_mouse[i].bReleased = false;
-					}
-					else if(prev_touchcount > 0 && touch_count > 0)
-					{
-						m_mouse[i].bPressed = false;
-						m_mouse[i].bHeld = true;
-						m_mouse[i].bReleased = false;
-					}
+					if(prev_touchcount == 0 && touch_count > 0){m_mouse[i].bPressed = true;m_mouse[i].bHeld = false;m_mouse[i].bReleased = false;}
+					else if(prev_touchcount > 0 && touch_count > 0){m_mouse[i].bPressed = false;m_mouse[i].bHeld = true;m_mouse[i].bReleased = false;}
 				}
-
 			}
 			prev_touchcount = touch_count;
 			/*****************************************************************/
@@ -659,6 +642,14 @@ public:
 		}
 	}
 
+	bool MousebPressed() {return m_mouse[0].bPressed;}
+	bool MousebHeld() {return m_mouse[0].bHeld;}
+	bool MousebReleased() {return m_mouse[0].bReleased;}
+
+	bool KeyDown(HidControllerKeys key) {return (kDown & key);}
+	bool KeyHeld(HidControllerKeys key) {return (kHeld & key);}
+	bool KeyUp(HidControllerKeys key) {return (kUp & key);}
+
 	int ScreenWidth()
 	{
 		return m_nScreenWidth;
@@ -667,7 +658,6 @@ public:
 	{
 		return m_nScreenHeight;
 	}
-
 
 public:
 	virtual bool OnUserCreate() = 0;
@@ -701,7 +691,7 @@ protected:
 	FT_Face face;
 
 	//keyboards
-	u64 kDown,kHeld,kUp,kDownOld = 0,kHeldOld = 0,kUpOld = 0;
+	u64 kDown,kHeld,kUp;
 
 	//touchPosition
 	touchPosition* touch;
