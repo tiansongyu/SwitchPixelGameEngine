@@ -527,6 +527,7 @@ public:
 			return error_screen("plGetSharedFont() failed: 0x%x\n", rc);
 		*/
 		// Use this when you want to use specific shared-font(s). Since this example only uses 1 font, only the font loaded by this will be used.
+
 		rc = plGetSharedFontByType(&font, PlSharedFontType_Standard);
 		if (R_FAILED(rc))
         	fatalThrow(rc);
@@ -622,7 +623,6 @@ public:
 					else if(prev_touchcount > 0 && touch_count > 0){m_mouse[i].bPressed = false;m_mouse[i].bHeld = true;m_mouse[i].bReleased = false;}
 				}
 			}
-			prev_touchcount = touch_count;
 			/*****************************************************************/
 			// Retrieve the framebuffer
 			// 建立屏幕缓冲区
@@ -678,8 +678,7 @@ protected:
 	int block_size_y;
 
 	Framebuffer fb;
-
-    u32 framebuf_width = 0;
+  u32 framebuf_width = 0;
 	NWindow *win;
 	u32 stride;
 	u32 *framebuf;
