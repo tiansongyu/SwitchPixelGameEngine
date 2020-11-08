@@ -679,7 +679,7 @@ public:
 				{
 					//update pos
 					hidTouchRead(&touch[i],i);
-					if(touch[i].px >=0 && touch[i].px < 1280)mouse_pos_x = touch[0].px;
+					if(touch[i].px >=0 && touch[i].px < 1280)mouse_pos_x = touch[i].px;
 					if(touch[i].py >=0 && touch[i].py < 720)mouse_pos_y = touch[i].py;
 					//end
 					if(prev_touchcount == 0 && touch_count > 0){m_mouse[i].bPressed = true;m_mouse[i].bHeld = false;m_mouse[i].bReleased = false;}
@@ -697,6 +697,7 @@ public:
 			char s[10];
 			sprintf(s,"%3.2f",1.0f / fElapsedTime);
 			DrawString(500,30,std::string("FPS: ")+std::string(s));
+			prev_touchcount = touch_count;
 			// Each pixel is 4-bytes due to RGBA8888.
 			// 开始渲染
 			// We're done rendering, so we end the frame here.
