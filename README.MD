@@ -59,6 +59,7 @@ Please see https://github.com/tiansongyu/SwitchPixelGameEngine/wiki
 - 更改像素块大小(change the size of pixel)
 - 更改分辨率 (chage the image resolution)
 
+
 # Credits
 - Thanks [Javidx9](https://github.com/OneLoneCoder) who inspired me to achieve it and his [olcPixelGameEngine](https://github.com/OneLoneCoder/olcPixelGameEngine) !
 

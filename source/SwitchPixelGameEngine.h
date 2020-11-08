@@ -731,7 +731,7 @@ public:
 
 	int ScreenWidth(){return m_nScreenWidth;}
 	int ScreenHeight(){return m_nScreenHeight;}
-
+  
 public:
 	virtual bool OnUserCreate() = 0;
 	virtual bool OnUserUpdate(float fElapsedTime) = 0;
@@ -753,6 +753,7 @@ protected:
 
 	Framebuffer fb;
     u32 framebuf_width = 0;
+
 	NWindow *win;
 	u32 stride;
 	u32 *framebuf;
@@ -778,6 +779,7 @@ protected:
 		bool bReleased;
 		bool bHeld;
 	}m_mouse[5];
-
+  //image
 	uint32_t* background;
 };
+

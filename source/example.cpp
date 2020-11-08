@@ -6,9 +6,6 @@ public:
     Demo()
     {
     }
-    std::string s_str = "hello world !";
-    int sum =0;
-    SgeSprite* picture;
     virtual bool OnUserCreate() override
     {
         picture = new SgeSprite(800,0,447,450,"romfs:/maliao.bin");
@@ -43,10 +40,13 @@ public:
         sprintf(t1,"%d",sum);
         DrawString(ScreenWidth()/2,ScreenHeight()/3,std::string("mouse pos is") + std::string(t1));
         /**********************************************************************************/
-
         DrawSprite(picture);  
         return true;
     }
+ public:
+    std::string s_str = "hello world !";
+    int sum =0;
+    SgeSprite* picture;
 };
 
 int main()
