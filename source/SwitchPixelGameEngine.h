@@ -86,7 +86,8 @@ extern "C"
 #include <ft2build.h>
 #include FT_FREETYPE_H
 }
-
+#define FB_WIDTH 1280
+#define FB_HEIGHT 720
 enum COLOUR
 {
 	FG_BLACK = 0x00000000,
@@ -106,7 +107,10 @@ enum COLOUR
 	FG_YELLOW = 0x00FFFF,
 	FG_WHITE = 0x00FFFFFF,
 };
-
+enum MODE{
+	PICTURE,
+	PIXEL,
+};
 
 //默认switch的屏幕是 1280x720
 //TODO:添加声音播放
@@ -115,8 +119,63 @@ enum COLOUR
 //TODO:RGBA分开存储
 //TODO:更换字体颜色和大小
 
-#define FB_WIDTH 1280
-#define FB_HEIGHT 720
+
+class SgeSprite
+{
+public:
+
+	SgeSprite()
+	{
+		nWidth = 0;
+		nHeight = 0;
+		pos_x = 0;
+		pos_y = 0;
+		pixel_color = FG_RED;
+		mode = MODE::PIXEL ;
+	}
+	SgeSprite(uint32_t x,uint32_t y,uint32_t w,uint32_t h,COLOUR color = FG_RED)
+	{
+		pos_x = x;
+		pos_y = y;
+		nWidth = w ;
+		nHeight = h;
+		mode = MODE::PIXEL;
+		pixel_color = color;
+		m_Colours = new uint32_t[nWidth * nHeight];
+		memset(m_Colours,color,w * h);
+	}
+	SgeSprite(uint32_t x,uint32_t y,uint32_t w,uint32_t h,std::string file_path)
+	{	
+		pos_x = x;
+		pos_y = y;	
+		nWidth = w ;
+		nHeight = h;
+		mode = MODE::PICTURE;
+		m_Colours = new uint32_t[nWidth * nHeight];
+		char* cfile_path = new char[100];
+		cfile_path = (char*)(file_path.c_str());	
+		FILE* fp;	
+		fp = fopen(cfile_path,"rb");
+		fread(m_Colours,sizeof(uint32_t),nWidth * nHeight,fp);
+		fclose(fp);
+		delete[] cfile_path;
+	}
+	uint32_t GetPos_x(){return pos_x;}
+	uint32_t GetPos_y(){return pos_y;}
+	uint32_t GetWight(){return nWidth;}
+	uint32_t GetHeight(){return nHeight;}
+	uint32_t* GetColour(){return m_Colours;}
+	COLOUR  GetPixelColour(){return pixel_color;}
+	MODE GetMode(){return mode;}
+public:
+	uint32_t nWidth,nHeight;
+	uint32_t pos_x,pos_y;
+private:
+	uint32_t* m_Colours = nullptr;
+	COLOUR pixel_color ;
+	MODE mode ;
+
+};
 
 class SwitchGameEngine
 {
@@ -131,8 +190,17 @@ public:
 		mouse_pos_x = 0 ;
 		mouse_pos_y = 0 ;
 	}
-
 public:
+	void DrawSprite(SgeSprite* sprite)
+	{	
+		uint32_t* tmp_color = sprite->GetColour(); 
+		for(uint32_t y = 0; y< sprite->GetHeight(); y++)
+			for(uint32_t x = 0 ; x < sprite->GetWight() ; x++)
+			{
+				if(sprite->GetMode() == MODE::PIXEL)
+					Draw(sprite->GetPos_x() + x,sprite->GetPos_y()  + y  ,sprite->GetPixelColour());
+			}	
+	}
 
 	virtual void Draw(int x, int y, const u32 rgba)
 	{
@@ -563,7 +631,7 @@ public:
 
 		touch = new touchPosition[5];
 		plInitialize(PlServiceType_User);
-
+		romfsInit();
 
 		//init windows
 		win = nwindowGetDefault();
@@ -657,6 +725,7 @@ public:
 		FT_Done_Face(face);
 		FT_Done_FreeType(library);
 		plExit();
+		romfsExit();
 		delete[] touch;
 	}
 protected:
