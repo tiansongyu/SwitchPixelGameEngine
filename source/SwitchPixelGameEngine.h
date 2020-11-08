@@ -80,7 +80,6 @@ int main()
 #include <stdio.h>
 #include <string>
 #include <chrono>
-
 extern "C"
 {
 #include <ft2build.h>
@@ -144,7 +143,7 @@ public:
 		m_Colours = new uint32_t[nWidth * nHeight];
 		memset(m_Colours,color,w * h);
 	}
-	SgeSprite(uint32_t x,uint32_t y,uint32_t w,uint32_t h,std::string file_path)
+	SgeSprite(uint32_t x,uint32_t y,uint32_t w,uint32_t h, const char* file_path)
 	{	
 		pos_x = x;
 		pos_y = y;	
@@ -152,13 +151,12 @@ public:
 		nHeight = h;
 		mode = MODE::PICTURE;
 		m_Colours = new uint32_t[nWidth * nHeight];
-		char* cfile_path = new char[100];
-		cfile_path = (char*)(file_path.c_str());	
-		FILE* fp;	
-		fp = fopen(cfile_path,"rb");
+
+		memset(m_Colours,0x0,nWidth * nHeight *sizeof(uint32_t));
+ 		FILE* fp;	
+		fp = fopen(file_path,"rb");
 		fread(m_Colours,sizeof(uint32_t),nWidth * nHeight,fp);
-		fclose(fp);
-		delete[] cfile_path;
+		fclose(fp); 
 	}
 	uint32_t GetPos_x(){return pos_x;}
 	uint32_t GetPos_y(){return pos_y;}
@@ -193,12 +191,17 @@ public:
 public:
 	void DrawSprite(SgeSprite* sprite)
 	{	
-		uint32_t* tmp_color = sprite->GetColour(); 
+		uint32_t* tmp_color = sprite->GetColour();
+		MODE tmp_mode = sprite->GetMode();
 		for(uint32_t y = 0; y< sprite->GetHeight(); y++)
 			for(uint32_t x = 0 ; x < sprite->GetWight() ; x++)
 			{
-				if(sprite->GetMode() == MODE::PIXEL)
+				if(tmp_mode == MODE::PIXEL)
 					Draw(sprite->GetPos_x() + x,sprite->GetPos_y()  + y  ,sprite->GetPixelColour());
+				else
+				{
+					Draw(sprite->GetPos_x() + x,sprite->GetPos_y()  + y  ,tmp_color[y * sprite->GetWight() + x]);
+				}
 			}	
 	}
 
@@ -206,6 +209,8 @@ public:
 	{
 		if (x >= 0 && x < m_nScreenWidth && y >= 0 && y < m_nScreenHeight)
 		{
+			if(framebuf[(y* block_size_y + 0) * FB_WIDTH + (x * block_size_x + 0)] == rgba)
+				return;
 			for(int dx = 0; dx < block_size_x ; dx++)
 				for(int dy =0; dy < block_size_y ; dy++)
 					framebuf[(y* block_size_y + dy) * FB_WIDTH + (x * block_size_x + dx)] = rgba;
@@ -664,7 +669,7 @@ public:
 			kHeld = hidKeysHeld(CONTROLLER_P1_AUTO);
 			kUp = hidKeysUp(CONTROLLER_P1_AUTO);
 
-			if (KeyDown(KEY_DOWN))
+			if (KeyDown(KEY_PLUS))
 				break;
 			/*****************************************************************/
 			//touch input
@@ -703,6 +708,18 @@ public:
 			// We're done rendering, so we end the frame here.
 			framebufferEnd(&fb);
 		}
+	}
+	void SetBackGround(const char*file_path)
+	{
+		background = new uint32_t[FB_WIDTH * FB_HEIGHT];
+		FILE* fp;	
+		fp = fopen(file_path,"rb");
+		fread(background,sizeof(uint32_t),FB_WIDTH * FB_HEIGHT,fp);
+		fclose(fp); 
+	}
+	void displayBackGround()
+	{
+		memcpy(framebuf,(char*)background,FB_WIDTH * FB_HEIGHT * sizeof(uint32_t));
 	}
 	bool MousebPressed() {return m_mouse[0].bPressed;}
 	bool MousebHeld() {return m_mouse[0].bHeld;}
@@ -753,6 +770,7 @@ protected:
 	touchPosition* touch;
 	u32 touch_count,prev_touchcount = 0;
 	int mouse_pos_x ,mouse_pos_y;
+
 	//
 	struct sKeyState
 	{
@@ -760,4 +778,6 @@ protected:
 		bool bReleased;
 		bool bHeld;
 	}m_mouse[5];
+
+	uint32_t* background;
 };
