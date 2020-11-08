@@ -586,21 +586,16 @@ public:
 			std::chrono::duration<float> elapsedTime = tp2 - tp1;
 			tp1 = tp2;
 			float fElapsedTime = elapsedTime.count();
-
 			// Scan all the inputs. This should be done once for each frame
-			// 手柄输入检测函数
-
 			hidScanInput();
-
 			// hidKeysDown returns information about which buttons have been
 			// just pressed in this frame compared to the previous one
 			/*****************************************************************/
-			// 按键判断函数
 			kDown = hidKeysDown(CONTROLLER_P1_AUTO);
 			kHeld = hidKeysHeld(CONTROLLER_P1_AUTO);
 			kUp = hidKeysUp(CONTROLLER_P1_AUTO);
 
-			if (kDown & KEY_PLUS)
+			if (KeyDown(KEY_DOWN))
 				break;
 			/*****************************************************************/
 			//touch input
@@ -641,7 +636,6 @@ public:
 			framebufferEnd(&fb);
 		}
 	}
-
 	bool MousebPressed() {return m_mouse[0].bPressed;}
 	bool MousebHeld() {return m_mouse[0].bHeld;}
 	bool MousebReleased() {return m_mouse[0].bReleased;}
@@ -650,14 +644,8 @@ public:
 	bool KeyHeld(HidControllerKeys key) {return (kHeld & key);}
 	bool KeyUp(HidControllerKeys key) {return (kUp & key);}
 
-	int ScreenWidth()
-	{
-		return m_nScreenWidth;
-	}
-	int ScreenHeight()
-	{
-		return m_nScreenHeight;
-	}
+	int ScreenWidth(){return m_nScreenWidth;}
+	int ScreenHeight(){return m_nScreenHeight;}
 
 public:
 	virtual bool OnUserCreate() = 0;
