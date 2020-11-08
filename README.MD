@@ -58,15 +58,6 @@ Please see https://github.com/tiansongyu/SwitchPixelGameEngine/wiki
 - 触屏控制(touch input)
 - 更改像素块大小(change the size of pixel)
 - 更改分辨率 (chage the image resolution)
-# TODO: Features 
-
-
-- 添加声音播放(add audio function)
-- 添加多线程   (add thread function)
-- 整理函数位置结构 (clean the funcion code)
-- RGBA分开存储 (clean the RGBA code)
-- 更换字体颜色和大小 (add changing the font size and color)
-- 更换分辨率(change the resolving power option)
 
 
 # Credits

@@ -80,13 +80,13 @@ int main()
 #include <stdio.h>
 #include <string>
 #include <chrono>
-
 extern "C"
 {
 #include <ft2build.h>
 #include FT_FREETYPE_H
 }
-
+#define FB_WIDTH 1280
+#define FB_HEIGHT 720
 enum COLOUR
 {
 	FG_BLACK = 0x00000000,
@@ -106,7 +106,10 @@ enum COLOUR
 	FG_YELLOW = 0x00FFFF,
 	FG_WHITE = 0x00FFFFFF,
 };
-
+enum MODE{
+	PICTURE,
+	PIXEL,
+};
 
 //默认switch的屏幕是 1280x720
 //TODO:添加声音播放
@@ -115,8 +118,62 @@ enum COLOUR
 //TODO:RGBA分开存储
 //TODO:更换字体颜色和大小
 
-#define FB_WIDTH 1280
-#define FB_HEIGHT 720
+
+class SgeSprite
+{
+public:
+
+	SgeSprite()
+	{
+		nWidth = 0;
+		nHeight = 0;
+		pos_x = 0;
+		pos_y = 0;
+		pixel_color = FG_RED;
+		mode = MODE::PIXEL ;
+	}
+	SgeSprite(uint32_t x,uint32_t y,uint32_t w,uint32_t h,COLOUR color = FG_RED)
+	{
+		pos_x = x;
+		pos_y = y;
+		nWidth = w ;
+		nHeight = h;
+		mode = MODE::PIXEL;
+		pixel_color = color;
+		m_Colours = new uint32_t[nWidth * nHeight];
+		memset(m_Colours,color,w * h);
+	}
+	SgeSprite(uint32_t x,uint32_t y,uint32_t w,uint32_t h, const char* file_path)
+	{	
+		pos_x = x;
+		pos_y = y;	
+		nWidth = w ;
+		nHeight = h;
+		mode = MODE::PICTURE;
+		m_Colours = new uint32_t[nWidth * nHeight];
+
+		memset(m_Colours,0x0,nWidth * nHeight *sizeof(uint32_t));
+ 		FILE* fp;	
+		fp = fopen(file_path,"rb");
+		fread(m_Colours,sizeof(uint32_t),nWidth * nHeight,fp);
+		fclose(fp); 
+	}
+	uint32_t GetPos_x(){return pos_x;}
+	uint32_t GetPos_y(){return pos_y;}
+	uint32_t GetWight(){return nWidth;}
+	uint32_t GetHeight(){return nHeight;}
+	uint32_t* GetColour(){return m_Colours;}
+	COLOUR  GetPixelColour(){return pixel_color;}
+	MODE GetMode(){return mode;}
+public:
+	uint32_t nWidth,nHeight;
+	uint32_t pos_x,pos_y;
+private:
+	uint32_t* m_Colours = nullptr;
+	COLOUR pixel_color ;
+	MODE mode ;
+
+};
 
 class SwitchGameEngine
 {
@@ -131,13 +188,29 @@ public:
 		mouse_pos_x = 0 ;
 		mouse_pos_y = 0 ;
 	}
-
 public:
+	void DrawSprite(SgeSprite* sprite)
+	{	
+		uint32_t* tmp_color = sprite->GetColour();
+		MODE tmp_mode = sprite->GetMode();
+		for(uint32_t y = 0; y< sprite->GetHeight(); y++)
+			for(uint32_t x = 0 ; x < sprite->GetWight() ; x++)
+			{
+				if(tmp_mode == MODE::PIXEL)
+					Draw(sprite->GetPos_x() + x,sprite->GetPos_y()  + y  ,sprite->GetPixelColour());
+				else
+				{
+					Draw(sprite->GetPos_x() + x,sprite->GetPos_y()  + y  ,tmp_color[y * sprite->GetWight() + x]);
+				}
+			}	
+	}
 
 	virtual void Draw(int x, int y, const u32 rgba)
 	{
 		if (x >= 0 && x < m_nScreenWidth && y >= 0 && y < m_nScreenHeight)
 		{
+			if(framebuf[(y* block_size_y + 0) * FB_WIDTH + (x * block_size_x + 0)] == rgba)
+				return;
 			for(int dx = 0; dx < block_size_x ; dx++)
 				for(int dy =0; dy < block_size_y ; dy++)
 					framebuf[(y* block_size_y + dy) * FB_WIDTH + (x * block_size_x + dx)] = rgba;
@@ -563,7 +636,7 @@ public:
 
 		touch = new touchPosition[5];
 		plInitialize(PlServiceType_User);
-
+		romfsInit();
 
 		//init windows
 		win = nwindowGetDefault();
@@ -587,21 +660,16 @@ public:
 			std::chrono::duration<float> elapsedTime = tp2 - tp1;
 			tp1 = tp2;
 			float fElapsedTime = elapsedTime.count();
-
 			// Scan all the inputs. This should be done once for each frame
-			// 手柄输入检测函数
-
 			hidScanInput();
-
 			// hidKeysDown returns information about which buttons have been
 			// just pressed in this frame compared to the previous one
 			/*****************************************************************/
-			// 按键判断函数
 			kDown = hidKeysDown(CONTROLLER_P1_AUTO);
 			kHeld = hidKeysHeld(CONTROLLER_P1_AUTO);
 			kUp = hidKeysUp(CONTROLLER_P1_AUTO);
 
-			if (kDown & KEY_PLUS)
+			if (KeyDown(KEY_PLUS))
 				break;
 			/*****************************************************************/
 			//touch input
@@ -616,7 +684,7 @@ public:
 				{
 					//update pos
 					hidTouchRead(&touch[i],i);
-					if(touch[i].px >=0 && touch[i].px < 1280)mouse_pos_x = touch[0].px;
+					if(touch[i].px >=0 && touch[i].px < 1280)mouse_pos_x = touch[i].px;
 					if(touch[i].py >=0 && touch[i].py < 720)mouse_pos_y = touch[i].py;
 					//end
 					if(prev_touchcount == 0 && touch_count > 0){m_mouse[i].bPressed = true;m_mouse[i].bHeld = false;m_mouse[i].bReleased = false;}
@@ -631,17 +699,28 @@ public:
 			// 用户接口
 
 			OnUserUpdate(fElapsedTime);
-			
 			char s[10];
 			sprintf(s,"%3.2f",1.0f / fElapsedTime);
 			DrawString(500,30,std::string("FPS: ")+std::string(s));
+			prev_touchcount = touch_count;
 			// Each pixel is 4-bytes due to RGBA8888.
 			// 开始渲染
 			// We're done rendering, so we end the frame here.
 			framebufferEnd(&fb);
 		}
 	}
-
+	void SetBackGround(const char*file_path)
+	{
+		background = new uint32_t[FB_WIDTH * FB_HEIGHT];
+		FILE* fp;	
+		fp = fopen(file_path,"rb");
+		fread(background,sizeof(uint32_t),FB_WIDTH * FB_HEIGHT,fp);
+		fclose(fp); 
+	}
+	void displayBackGround()
+	{
+		memcpy(framebuf,(char*)background,FB_WIDTH * FB_HEIGHT * sizeof(uint32_t));
+	}
 	bool MousebPressed() {return m_mouse[0].bPressed;}
 	bool MousebHeld() {return m_mouse[0].bHeld;}
 	bool MousebReleased() {return m_mouse[0].bReleased;}
@@ -650,15 +729,9 @@ public:
 	bool KeyHeld(HidControllerKeys key) {return (kHeld & key);}
 	bool KeyUp(HidControllerKeys key) {return (kUp & key);}
 
-	int ScreenWidth()
-	{
-		return m_nScreenWidth;
-	}
-	int ScreenHeight()
-	{
-		return m_nScreenHeight;
-	}
-
+	int ScreenWidth(){return m_nScreenWidth;}
+	int ScreenHeight(){return m_nScreenHeight;}
+  
 public:
 	virtual bool OnUserCreate() = 0;
 	virtual bool OnUserUpdate(float fElapsedTime) = 0;
@@ -669,6 +742,7 @@ public:
 		FT_Done_Face(face);
 		FT_Done_FreeType(library);
 		plExit();
+		romfsExit();
 		delete[] touch;
 	}
 protected:
@@ -678,7 +752,8 @@ protected:
 	int block_size_y;
 
 	Framebuffer fb;
-  u32 framebuf_width = 0;
+    u32 framebuf_width = 0;
+
 	NWindow *win;
 	u32 stride;
 	u32 *framebuf;
@@ -696,6 +771,7 @@ protected:
 	touchPosition* touch;
 	u32 touch_count,prev_touchcount = 0;
 	int mouse_pos_x ,mouse_pos_y;
+
 	//
 	struct sKeyState
 	{
@@ -703,4 +779,7 @@ protected:
 		bool bReleased;
 		bool bHeld;
 	}m_mouse[5];
+  //image
+	uint32_t* background;
 };
+
