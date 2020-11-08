@@ -694,7 +694,6 @@ public:
 			// 用户接口
 
 			OnUserUpdate(fElapsedTime);
-			
 			char s[10];
 			sprintf(s,"%3.2f",1.0f / fElapsedTime);
 			DrawString(500,30,std::string("FPS: ")+std::string(s));
@@ -735,7 +734,7 @@ protected:
 	int block_size_y;
 
 	Framebuffer fb;
-  u32 framebuf_width = 0;
+    u32 framebuf_width = 0;
 	NWindow *win;
 	u32 stride;
 	u32 *framebuf;

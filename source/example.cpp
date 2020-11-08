@@ -29,7 +29,7 @@ public:
         if(KeyHeld(KEY_UP)) DrawString(0,ScreenHeight()/4,"UP KEY is held");
         /**********************************************************************************/
         //mouse input
-        if(MousebPressed())
+        if(MousebReleased())
         {
             sum++;
         }
