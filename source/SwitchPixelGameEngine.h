@@ -17,8 +17,8 @@
 //
 // SwitchPixelGameEngine is actively maintained and developed!
 
-
-// Last Updated: 2020/11/5
+//Version: 0.2
+// Last Updated: 2020/11/9
 /*
 Usage:
 ~~~~~~
@@ -89,22 +89,22 @@ extern "C"
 #define FB_HEIGHT 720
 enum COLOUR
 {
-	FG_BLACK = 0x00000000,
-	FG_DARK_BLUE = 0x008B0000,
-	FG_DARK_GREEN = 0x00006400,
-	FG_DARK_CYAN = 0x008B8B00,
-	FG_DARK_RED = 0x0000008B,
-	FG_DARK_MAGENTA = 0x008B008B,
-	FG_DARK_YELLOW = 0x0000D7FF,
-	FG_GREY = 0x00808080, 
-	FG_DARK_GREY = 0x00A9A9A9,
-	FG_BLUE = 0x00FF0000,
-	FG_GREEN = 0x00008000,
-	FG_CYAN = 0x00FFFF00,
-	FG_RED = 0x000000FF,
-	FG_MAGENTA = 0x00FF00FF,
-	FG_YELLOW = 0x00FFFF,
-	FG_WHITE = 0x00FFFFFF,
+	FG_BLACK = 0xFF000000,
+	FG_DARK_BLUE = 0xFF8B0000,
+	FG_DARK_GREEN = 0xFF006400,
+	FG_DARK_CYAN = 0xFF8B8B00,
+	FG_DARK_RED = 0xFF00008B,
+	FG_DARK_MAGENTA = 0xFF8B008B,
+	FG_DARK_YELLOW = 0xFF00D7FF,
+	FG_GREY = 0xFF808080, 
+	FG_DARK_GREY = 0xFFA9A9A9,
+	FG_BLUE = 0xFFFF0000,
+	FG_GREEN = 0xFF008000,
+	FG_CYAN = 0xFFFFFF00,
+	FG_RED = 0xFF0000FF,
+	FG_MAGENTA = 0xFFFF00FF,
+	FG_YELLOW = 0xFF00FFFF,
+	FG_WHITE = 0xFFFFFFFF,
 };
 enum MODE{
 	PICTURE,
@@ -132,6 +132,10 @@ public:
 		pixel_color = FG_RED;
 		mode = MODE::PIXEL ;
 	}
+	~SgeSprite()
+	{
+
+	}
 	SgeSprite(uint32_t x,uint32_t y,uint32_t w,uint32_t h,COLOUR color = FG_RED)
 	{
 		pos_x = x;
@@ -157,6 +161,11 @@ public:
 		fp = fopen(file_path,"rb");
 		fread(m_Colours,sizeof(uint32_t),nWidth * nHeight,fp);
 		fclose(fp); 
+	}
+	void SetPosition(uint32_t x,uint32_t y)
+	{
+		pos_x = x;
+		pos_y = y;
 	}
 	uint32_t GetPos_x(){return pos_x;}
 	uint32_t GetPos_y(){return pos_y;}
@@ -205,7 +214,7 @@ public:
 			}	
 	}
 
-	virtual void Draw(int x, int y, const u32 rgba)
+	virtual void Draw(int x, int y,  u32 rgba)
 	{
 		if (x >= 0 && x < m_nScreenWidth && y >= 0 && y < m_nScreenHeight)
 		{
@@ -213,11 +222,49 @@ public:
 				return;
 			for(int dx = 0; dx < block_size_x ; dx++)
 				for(int dy =0; dy < block_size_y ; dy++)
+				{
+					rgba = AlphaMix(x * block_size_x + dx,y* block_size_y + dy,rgba);
 					framebuf[(y* block_size_y + dy) * FB_WIDTH + (x * block_size_x + dx)] = rgba;
+				}
 		}
 
 	}
+	struct RGBA
+	{
+		union 
+		{
+			uint32_t rgba;
+			uint8_t color[4];
+		};
+	};
 
+	uint32_t AlphaMix(uint32_t x ,uint32_t y, uint32_t rgba)
+	{
+		RGBA old_rgba;
+		old_rgba.rgba = Getrgba(x,y);
+		uint8_t r_old = old_rgba.color[0];
+		uint8_t g_old = old_rgba.color[1];
+		uint8_t b_old = old_rgba.color[2];
+		uint8_t a_old = old_rgba.color[3];
+
+		RGBA new_rgba;
+		new_rgba.rgba = rgba;
+		uint8_t r_new = new_rgba.color[0];
+		uint8_t g_new = new_rgba.color[1];
+		uint8_t b_new = new_rgba.color[2];
+		uint8_t a_new = new_rgba.color[3];
+
+		new_rgba.color[0] = a_new * 1.0f / 255 * r_new + (255 - a_new) * 1.0f / 255 * r_old ;
+		new_rgba.color[1] = a_new * 1.0f / 255 * g_new + (255 - a_new) * 1.0f/ 255 * g_old ;
+		new_rgba.color[2] = a_new * 1.0f / 255 * b_new + (255 - a_new) * 1.0f/ 255 * b_old ;
+		new_rgba.color[3] = (a_new + a_old) / 2 ; 
+		
+		return new_rgba.rgba;
+	}
+	uint32_t Getrgba(uint32_t x,uint32_t y)
+	{
+		return framebuf[y * FB_WIDTH + x];
+	}
 	void Fill(int x1, int y1, int x2, int y2, const u32 rgba)
 	{
 		Clip(x1, y1);
@@ -708,6 +755,7 @@ public:
 			// We're done rendering, so we end the frame here.
 			framebufferEnd(&fb);
 		}
+		OnUserDestroy();
 	}
 	void SetBackGround(const char*file_path)
 	{

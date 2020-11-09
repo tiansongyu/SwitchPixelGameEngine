@@ -20,16 +20,33 @@ public:
 
         //displayBackGround();
 
-        Fill(0,0,ScreenWidth()/10,ScreenHeight()/10,FG_RED);
-        Fill(ScreenWidth()/10,ScreenHeight()/10,ScreenWidth()/2, ScreenHeight()/2,FG_YELLOW);
+        Fill(0,0,ScreenWidth()/8,ScreenHeight()/8,FG_RED);
+        Fill(ScreenWidth()/10,ScreenHeight()/10,ScreenWidth()/2, ScreenHeight()/2,0x4400FFff);
         DrawTriangle(ScreenWidth()/2,ScreenHeight()/2,ScreenWidth()/3,ScreenHeight()/3,ScreenWidth()/4,ScreenHeight()/4,FG_YELLOW);
         DrawCircle(ScreenWidth()/2,ScreenHeight()/2,ScreenWidth()/10,FG_GREEN);
         DrawString(ScreenWidth()/2, ScreenHeight()/2, s_str);  
         /**********************************************************************************/
         //keyboard input 
-        if(KeyDown(KEY_UP)) DrawString(0,ScreenHeight()/2,"UP KEY is down");
+        if(KeyDown(KEY_UP) || KeyHeld(KEY_UP) ) 
+        {
+            DrawString(0,ScreenHeight()/2,"UP KEY is down");
+            picture->SetPosition(picture->GetPos_x(),picture->GetPos_y()-10);
+        }
         if(KeyUp(KEY_UP)) DrawString(0,ScreenHeight()/3,"UP KEY is kUp");
         if(KeyHeld(KEY_UP)) DrawString(0,ScreenHeight()/4,"UP KEY is held");
+
+        if(KeyDown(KEY_DOWN) || KeyHeld(KEY_DOWN)) 
+        {
+            picture->SetPosition(picture->GetPos_x(),picture->GetPos_y()+10);
+        }
+        if(KeyDown(KEY_LEFT) || KeyHeld(KEY_LEFT)) 
+        {
+            picture->SetPosition(picture->GetPos_x()-10,picture->GetPos_y());
+        }
+        if(KeyDown(KEY_RIGHT) || KeyHeld(KEY_RIGHT)) 
+        {
+            picture->SetPosition(picture->GetPos_x()+10,picture->GetPos_y());
+        }
         /**********************************************************************************/
         //mouse input
         if(MousebReleased())
@@ -38,9 +55,14 @@ public:
         }
         char t1[20];
         sprintf(t1,"%d",sum);
-        DrawString(ScreenWidth()/2,ScreenHeight()/3,std::string("mouse pos is") + std::string(t1));
+        DrawString(ScreenWidth()/2,ScreenHeight()/2 + 200,std::string("mouse pos is") + std::string(t1));
         /**********************************************************************************/
         DrawSprite(picture);  
+        return true;
+    }
+    virtual bool OnUserDestroy() override
+    {
+        delete picture;
         return true;
     }
  public:
