@@ -17,8 +17,8 @@
 //
 // SwitchPixelGameEngine is actively maintained and developed!
 
-
-// Last Updated: 2020/11/5
+//Version: 0.2
+// Last Updated: 2020/11/9
 /*
 Usage:
 ~~~~~~
@@ -89,22 +89,26 @@ extern "C"
 #define FB_HEIGHT 720
 enum COLOUR
 {
-	FG_BLACK = 0x00000000,
-	FG_DARK_BLUE = 0x008B0000,
-	FG_DARK_GREEN = 0x00006400,
-	FG_DARK_CYAN = 0x008B8B00,
-	FG_DARK_RED = 0x0000008B,
-	FG_DARK_MAGENTA = 0x008B008B,
-	FG_DARK_YELLOW = 0x0000D7FF,
-	FG_GREY = 0x00808080, 
-	FG_DARK_GREY = 0x00A9A9A9,
-	FG_BLUE = 0x00FF0000,
-	FG_GREEN = 0x00008000,
-	FG_CYAN = 0x00FFFF00,
-	FG_RED = 0x000000FF,
-	FG_MAGENTA = 0x00FF00FF,
-	FG_YELLOW = 0x00FFFF,
-	FG_WHITE = 0x00FFFFFF,
+	FG_BLACK = 0xFF000000,
+	FG_DARK_BLUE = 0xFF8B0000,
+	FG_DARK_GREEN = 0xFF006400,
+	FG_DARK_CYAN = 0xFF8B8B00,
+	FG_DARK_RED = 0xFF00008B,
+	FG_DARK_MAGENTA = 0xFF8B008B,
+	FG_DARK_YELLOW = 0xFF00D7FF,
+	FG_GREY = 0xFF808080, 
+	FG_DARK_GREY = 0xFFA9A9A9,
+	FG_BLUE = 0xFFFF0000,
+	FG_GREEN = 0xFF008000,
+	FG_CYAN = 0xFFFFFF00,
+	FG_RED = 0xFF0000FF,
+	FG_MAGENTA = 0xFFFF00FF,
+	FG_YELLOW = 0xFF00FFFF,
+	FG_WHITE = 0xFFFFFFFF,
+};
+enum MODE{
+	PICTURE,
+	PIXEL,
 };
 enum MODE{
 	PICTURE,
@@ -118,6 +122,14 @@ enum MODE{
 //TODO:RGBA分开存储
 //TODO:更换字体颜色和大小
 
+struct RGBA
+{
+	union 
+	{
+		uint32_t rgba;
+		uint8_t color[4];
+	};
+};
 
 class SgeSprite
 {
@@ -131,6 +143,9 @@ public:
 		pos_y = 0;
 		pixel_color = FG_RED;
 		mode = MODE::PIXEL ;
+	}
+	~SgeSprite()
+	{
 	}
 	SgeSprite(uint32_t x,uint32_t y,uint32_t w,uint32_t h,COLOUR color = FG_RED)
 	{
@@ -157,6 +172,11 @@ public:
 		fp = fopen(file_path,"rb");
 		fread(m_Colours,sizeof(uint32_t),nWidth * nHeight,fp);
 		fclose(fp); 
+	}
+	void SetPosition(uint32_t x,uint32_t y)
+	{
+		pos_x = x;
+		pos_y = y;
 	}
 	uint32_t GetPos_x(){return pos_x;}
 	uint32_t GetPos_y(){return pos_y;}
@@ -205,19 +225,45 @@ public:
 			}	
 	}
 
-	virtual void Draw(int x, int y, const u32 rgba)
+	virtual void Draw(int x, int y,  u32 rgba)
 	{
 		if (x >= 0 && x < m_nScreenWidth && y >= 0 && y < m_nScreenHeight)
 		{
-			if(framebuf[(y* block_size_y + 0) * FB_WIDTH + (x * block_size_x + 0)] == rgba)
-				return;
-			for(int dx = 0; dx < block_size_x ; dx++)
-				for(int dy =0; dy < block_size_y ; dy++)
-					framebuf[(y* block_size_y + dy) * FB_WIDTH + (x * block_size_x + dx)] = rgba;
+			//if(framebuf[(y* block_size_y + 0) * FB_WIDTH + (x * block_size_x + 0)] == rgba)
+			//	return;
+			uint16_t _x = x* block_size_x;
+			uint16_t _y = y* block_size_y;
+			for(uint8_t dx = 0; dx < block_size_x ; dx++)
+				for(uint8_t dy =0; dy < block_size_y ; dy++)
+				{
+					if((rgba >> 24) == 0x00)
+						return ;
+					if((rgba >> 24) != 0xFF)
+					{
+						rgba = AlphaMix(x * block_size_x + dx,y* block_size_y + dy,rgba);
+					}
+					framebuf[(_y + dy) * FB_WIDTH + (_x + dx)] = rgba;
+				}
 		}
 
 	}
 
+
+	uint32_t AlphaMix(uint32_t x ,uint32_t y, uint32_t rgba)
+	{
+		RGBA old_rgba,new_rgba;
+		old_rgba.rgba = Getrgba(x,y);
+		new_rgba.rgba = rgba;
+		new_rgba.color[0] = new_rgba.color[3] * 1.0f / 255 * new_rgba.color[0] + (255 - new_rgba.color[3]) * 1.0f / 255 * old_rgba.color[0] ;
+		new_rgba.color[1] = new_rgba.color[3] * 1.0f / 255 * new_rgba.color[1] + (255 - new_rgba.color[3]) * 1.0f/ 255 * old_rgba.color[1] ;
+		new_rgba.color[2] = new_rgba.color[3] * 1.0f / 255 * new_rgba.color[2] + (255 - new_rgba.color[3]) * 1.0f/ 255 * old_rgba.color[2] ;
+
+		return new_rgba.rgba;
+	}
+	uint32_t Getrgba(uint32_t x,uint32_t y)
+	{
+		return framebuf[y * FB_WIDTH + x];
+	}
 	void Fill(int x1, int y1, int x2, int y2, const u32 rgba)
 	{
 		Clip(x1, y1);
@@ -708,6 +754,7 @@ public:
 			// We're done rendering, so we end the frame here.
 			framebufferEnd(&fb);
 		}
+		OnUserDestroy();
 	}
 	void SetBackGround(const char*file_path)
 	{
@@ -719,7 +766,7 @@ public:
 	}
 	void displayBackGround()
 	{
-		memcpy(framebuf,(char*)background,FB_WIDTH * FB_HEIGHT * sizeof(uint32_t));
+		memcpy(framebuf,background,FB_WIDTH * FB_HEIGHT * sizeof(uint32_t));
 	}
 	bool MousebPressed() {return m_mouse[0].bPressed;}
 	bool MousebHeld() {return m_mouse[0].bHeld;}
@@ -757,6 +804,7 @@ protected:
 	NWindow *win;
 	u32 stride;
 	u32 *framebuf;
+
 	//font
 	Result rc ;
 	FT_Error ret = 0;
