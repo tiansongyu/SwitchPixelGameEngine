@@ -110,6 +110,10 @@ enum MODE{
 	PICTURE,
 	PIXEL,
 };
+enum MODE{
+	PICTURE,
+	PIXEL,
+};
 
 //默认switch的屏幕是 1280x720
 //TODO:添加声音播放
@@ -126,6 +130,7 @@ struct RGBA
 		uint8_t color[4];
 	};
 };
+
 class SgeSprite
 {
 public:
@@ -141,7 +146,6 @@ public:
 	}
 	~SgeSprite()
 	{
-
 	}
 	SgeSprite(uint32_t x,uint32_t y,uint32_t w,uint32_t h,COLOUR color = FG_RED)
 	{

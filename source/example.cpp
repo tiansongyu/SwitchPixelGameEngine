@@ -67,7 +67,6 @@ public:
     std::string s_str = "hello world !";
     int sum =0;
     SgeSprite* picture;
-    SgeSprite* picture_2;
 };
 
 int main()
