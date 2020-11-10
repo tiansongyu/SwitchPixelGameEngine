@@ -1,0 +1,21 @@
+name: Build SwitchPixelGameEngine
+
+on: [push]
+jobs:
+  AIO-switch-updater:
+    runs-on: ubuntu-latest
+    container: devkitpro/devkita64_devkitarm
+    steps:
+    - uses: actions/checkout@v1
+    - name: Update repo.
+      run: |
+        git submodule update --init --recursive
+        
+    - name: Building SwitchPixelGameEngine
+      run: |
+        make -j$(nproc)
+        
+    - uses: actions/upload-artifact@master
+      with:
+        name: SwitchPixelGameEngine
+        path: SwitchPixelGameEngine_example.nro
