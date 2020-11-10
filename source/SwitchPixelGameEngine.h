@@ -118,7 +118,14 @@ enum MODE{
 //TODO:RGBA分开存储
 //TODO:更换字体颜色和大小
 
-
+struct RGBA
+{
+	union 
+	{
+		uint32_t rgba;
+		uint8_t color[4];
+	};
+};
 class SgeSprite
 {
 public:
@@ -218,47 +225,35 @@ public:
 	{
 		if (x >= 0 && x < m_nScreenWidth && y >= 0 && y < m_nScreenHeight)
 		{
-			if(framebuf[(y* block_size_y + 0) * FB_WIDTH + (x * block_size_x + 0)] == rgba)
-				return;
-			for(int dx = 0; dx < block_size_x ; dx++)
-				for(int dy =0; dy < block_size_y ; dy++)
+			//if(framebuf[(y* block_size_y + 0) * FB_WIDTH + (x * block_size_x + 0)] == rgba)
+			//	return;
+			uint16_t _x = x* block_size_x;
+			uint16_t _y = y* block_size_y;
+			for(uint8_t dx = 0; dx < block_size_x ; dx++)
+				for(uint8_t dy =0; dy < block_size_y ; dy++)
 				{
-					rgba = AlphaMix(x * block_size_x + dx,y* block_size_y + dy,rgba);
-					framebuf[(y* block_size_y + dy) * FB_WIDTH + (x * block_size_x + dx)] = rgba;
+					if((rgba >> 24) == 0x00)
+						return ;
+					if((rgba >> 24) != 0xFF)
+					{
+						rgba = AlphaMix(x * block_size_x + dx,y* block_size_y + dy,rgba);
+					}
+					framebuf[(_y + dy) * FB_WIDTH + (_x + dx)] = rgba;
 				}
 		}
 
 	}
-	struct RGBA
-	{
-		union 
-		{
-			uint32_t rgba;
-			uint8_t color[4];
-		};
-	};
+
 
 	uint32_t AlphaMix(uint32_t x ,uint32_t y, uint32_t rgba)
 	{
-		RGBA old_rgba;
+		RGBA old_rgba,new_rgba;
 		old_rgba.rgba = Getrgba(x,y);
-		uint8_t r_old = old_rgba.color[0];
-		uint8_t g_old = old_rgba.color[1];
-		uint8_t b_old = old_rgba.color[2];
-		uint8_t a_old = old_rgba.color[3];
-
-		RGBA new_rgba;
 		new_rgba.rgba = rgba;
-		uint8_t r_new = new_rgba.color[0];
-		uint8_t g_new = new_rgba.color[1];
-		uint8_t b_new = new_rgba.color[2];
-		uint8_t a_new = new_rgba.color[3];
+		new_rgba.color[0] = new_rgba.color[3] * 1.0f / 255 * new_rgba.color[0] + (255 - new_rgba.color[3]) * 1.0f / 255 * old_rgba.color[0] ;
+		new_rgba.color[1] = new_rgba.color[3] * 1.0f / 255 * new_rgba.color[1] + (255 - new_rgba.color[3]) * 1.0f/ 255 * old_rgba.color[1] ;
+		new_rgba.color[2] = new_rgba.color[3] * 1.0f / 255 * new_rgba.color[2] + (255 - new_rgba.color[3]) * 1.0f/ 255 * old_rgba.color[2] ;
 
-		new_rgba.color[0] = a_new * 1.0f / 255 * r_new + (255 - a_new) * 1.0f / 255 * r_old ;
-		new_rgba.color[1] = a_new * 1.0f / 255 * g_new + (255 - a_new) * 1.0f/ 255 * g_old ;
-		new_rgba.color[2] = a_new * 1.0f / 255 * b_new + (255 - a_new) * 1.0f/ 255 * b_old ;
-		new_rgba.color[3] = (a_new + a_old) / 2 ; 
-		
 		return new_rgba.rgba;
 	}
 	uint32_t Getrgba(uint32_t x,uint32_t y)
@@ -767,7 +762,7 @@ public:
 	}
 	void displayBackGround()
 	{
-		memcpy(framebuf,(char*)background,FB_WIDTH * FB_HEIGHT * sizeof(uint32_t));
+		memcpy(framebuf,background,FB_WIDTH * FB_HEIGHT * sizeof(uint32_t));
 	}
 	bool MousebPressed() {return m_mouse[0].bPressed;}
 	bool MousebHeld() {return m_mouse[0].bHeld;}
@@ -805,6 +800,7 @@ protected:
 	NWindow *win;
 	u32 stride;
 	u32 *framebuf;
+
 	//font
 	Result rc ;
 	FT_Error ret = 0;

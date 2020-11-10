@@ -17,12 +17,10 @@ public:
         ClearAll();
         /**********************************************************************************/
         // Draw and Fill graphics
-
         //displayBackGround();
-
-        Fill(0,0,ScreenWidth()/8,ScreenHeight()/8,FG_RED);
-        Fill(ScreenWidth()/10,ScreenHeight()/10,ScreenWidth()/2, ScreenHeight()/2,0x4400FFff);
-        DrawTriangle(ScreenWidth()/2,ScreenHeight()/2,ScreenWidth()/3,ScreenHeight()/3,ScreenWidth()/4,ScreenHeight()/4,FG_YELLOW);
+        Fill(0,0,ScreenWidth()/5,ScreenHeight()/5,FG_RED);
+        Fill(ScreenWidth()/15,ScreenHeight()/15,ScreenWidth()/4, ScreenHeight()/4,0x4400FFff);
+        DrawTriangle(ScreenWidth()/2,ScreenHeight()/2,ScreenWidth()/3-100,ScreenHeight()/3+100,ScreenWidth()/4,ScreenHeight()/4,FG_YELLOW);
         DrawCircle(ScreenWidth()/2,ScreenHeight()/2,ScreenWidth()/10,FG_GREEN);
         DrawString(ScreenWidth()/2, ScreenHeight()/2, s_str);  
         /**********************************************************************************/
@@ -53,11 +51,11 @@ public:
         {
             sum++;
         }
-        char t1[20];
-        sprintf(t1,"%d",sum);
-        DrawString(ScreenWidth()/2,ScreenHeight()/2 + 200,std::string("mouse pos is") + std::string(t1));
+        char t1[50];
+        sprintf(t1,"%d %d\nmouse released number is %d",mouse_pos_x,mouse_pos_y, sum);
+        DrawString(ScreenWidth()/2-200,ScreenHeight()/2 + 200,std::string("mouse pos is") + std::string(t1));
         /**********************************************************************************/
-        DrawSprite(picture);  
+        DrawSprite(picture); 
         return true;
     }
     virtual bool OnUserDestroy() override
@@ -69,6 +67,7 @@ public:
     std::string s_str = "hello world !";
     int sum =0;
     SgeSprite* picture;
+    SgeSprite* picture_2;
 };
 
 int main()
