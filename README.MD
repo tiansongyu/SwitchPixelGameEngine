@@ -57,8 +57,8 @@ Please see https://github.com/tiansongyu/SwitchPixelGameEngine/wiki
 - 按键控制(keyboard input)
 - 触屏控制(touch input)
 - 更改像素块大小(change the size of pixel)
-- 更改分辨率 (chage the image resolution)
-
+- 更改分辨率(chage the image resolution)
+- 支持透明度(transparency support)
 
 # Credits
 - Thanks [Javidx9](https://github.com/OneLoneCoder) who inspired me to achieve it and his [olcPixelGameEngine](https://github.com/OneLoneCoder/olcPixelGameEngine) !

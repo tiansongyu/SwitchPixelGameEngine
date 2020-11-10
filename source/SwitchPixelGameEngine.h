@@ -18,7 +18,7 @@
 // SwitchPixelGameEngine is actively maintained and developed!
 
 //Version: 0.2
-// Last Updated: 2020/11/9
+// Last Updated: 2020/11/10
 /*
 Usage:
 ~~~~~~
@@ -34,7 +34,7 @@ Example:
 
 #include "SwitchPixelGameEngine.h"
 #include <string>
-class Demo : public SwitchGameEngine
+class Demo : public SwitchPixelGameEngine
 {
 public:
     Demo()
@@ -72,9 +72,7 @@ int main()
 */
 
 #pragma once
-
 #include <switch.h>
-
 //C Stardand lib
 #include <math.h>
 #include <stdio.h>
@@ -110,18 +108,6 @@ enum MODE{
 	PICTURE,
 	PIXEL,
 };
-enum MODE{
-	PICTURE,
-	PIXEL,
-};
-
-//默认switch的屏幕是 1280x720
-//TODO:添加声音播放
-//TODO:添加多线程
-//TODO:整理函数位置结构
-//TODO:RGBA分开存储
-//TODO:更换字体颜色和大小
-
 struct RGBA
 {
 	union 
@@ -130,11 +116,9 @@ struct RGBA
 		uint8_t color[4];
 	};
 };
-
 class SgeSprite
 {
 public:
-
 	SgeSprite()
 	{
 		nWidth = 0;
@@ -195,10 +179,10 @@ private:
 
 };
 
-class SwitchGameEngine
+class SwitchPixelGameEngine
 {
 public:
-	SwitchGameEngine()
+	SwitchPixelGameEngine()
 	{
 
 		m_nScreenWidth = FB_WIDTH;
@@ -248,7 +232,6 @@ public:
 
 	}
 
-
 	uint32_t AlphaMix(uint32_t x ,uint32_t y, uint32_t rgba)
 	{
 		RGBA old_rgba,new_rgba;
@@ -260,6 +243,7 @@ public:
 
 		return new_rgba.rgba;
 	}
+
 	uint32_t Getrgba(uint32_t x,uint32_t y)
 	{
 		return framebuf[y * FB_WIDTH + x];
@@ -556,8 +540,6 @@ public:
 		if (y >= m_nScreenHeight) y = m_nScreenHeight;
 	}
 
-
-
 public:
 	//Note that this doesn't handle any blending.
 	void draw_glyph(FT_Bitmap *bitmap, u32 *framebuf, u32 x, u32 y)
@@ -783,7 +765,7 @@ public:
 	virtual bool OnUserCreate() = 0;
 	virtual bool OnUserUpdate(float fElapsedTime) = 0;
 	virtual bool OnUserDestroy() { return true; }
-	~SwitchGameEngine()
+	~SwitchPixelGameEngine()
 	{
 		framebufferClose(&fb);
 		FT_Done_Face(face);

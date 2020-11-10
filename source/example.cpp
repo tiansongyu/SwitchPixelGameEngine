@@ -1,6 +1,27 @@
+// Copyright (C) 2020 tiansongyu
+//
+// This file is part of SwitchPixelGameEngine.
+//
+// SwitchPixelGameEngine is free GameEngine: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// SwitchPixelGameEngine is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with SwitchPixelGameEngine.  If not, see <http://www.gnu.org/licenses/>.
+//
+// SwitchPixelGameEngine is actively maintained and developed!
+
+//Version: 0.2
+// Last Updated: 2020/11/10
 #include "SwitchPixelGameEngine.h"
 #include <string>
-class Demo : public SwitchGameEngine
+class Demo : public SwitchPixelGameEngine
 {
 public:
     Demo()
@@ -16,7 +37,7 @@ public:
     {
         ClearAll();
         /**********************************************************************************/
-        // Draw and Fill graphics
+        //Draw and Fill graphics
         //displayBackGround();
         Fill(0,0,ScreenWidth()/5,ScreenHeight()/5,FG_RED);
         Fill(ScreenWidth()/15,ScreenHeight()/15,ScreenWidth()/4, ScreenHeight()/4,0x4400FFff);
