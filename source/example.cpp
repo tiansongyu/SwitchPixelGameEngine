@@ -85,7 +85,7 @@ public:
         return true;
     }
  public:
-    std::string s_str = "hello world !";
+    std::string s_str = "你好 world !";
     int sum =0;
     SgeSprite* picture;
 };

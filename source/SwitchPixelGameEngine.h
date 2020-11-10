@@ -629,7 +629,7 @@ public:
 		*/
 		// Use this when you want to use specific shared-font(s). Since this example only uses 1 font, only the font loaded by this will be used.
 
-		rc = plGetSharedFontByType(&font, PlSharedFontType_Standard);
+		rc = plGetSharedFontByType(&font, PlSharedFontType_ChineseSimplified);
 		if (R_FAILED(rc))
         	fatalThrow(rc);
 		ret = FT_Init_FreeType(&library);
