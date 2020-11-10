@@ -35,7 +35,9 @@ public:
     }
     virtual bool OnUserUpdate(float fElapsedTime) override
     {
-        ClearAll();
+        ClearScreen();
+        //SetFontColor(FG_YELLOW);
+        //SetFontSize(LARGE_FONT);
         /**********************************************************************************/
         //Draw and Fill graphics
         //displayBackGround();

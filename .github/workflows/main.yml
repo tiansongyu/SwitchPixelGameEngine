@@ -2,7 +2,7 @@ name: Build SwitchPixelGameEngine
 
 on: [push]
 jobs:
-  AIO-switch-updater:
+  SwitchPixelGameEngine:
     runs-on: ubuntu-latest
     container: devkitpro/devkita64_devkitarm
     steps:
@@ -18,4 +18,4 @@ jobs:
     - uses: actions/upload-artifact@master
       with:
         name: SwitchPixelGameEngine
-        path: SwitchPixelGameEngine_example.nro
+        path: SwitchPixelGameEngine.nro

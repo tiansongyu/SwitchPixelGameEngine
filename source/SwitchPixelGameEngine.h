@@ -85,6 +85,12 @@ extern "C"
 }
 #define FB_WIDTH 1280
 #define FB_HEIGHT 720
+enum FONTSIZE
+{
+	SMALL_FONT = 0x38,
+	MEDIUM_FONT = 0x60,
+	LARGE_FONT = 0x8A,
+};
 enum COLOUR
 {
 	FG_BLACK = 0xFF000000,
@@ -542,12 +548,11 @@ public:
 
 public:
 	//Note that this doesn't handle any blending.
-	void draw_glyph(FT_Bitmap *bitmap, u32 *framebuf, u32 x, u32 y)
+	void draw_glyph(FT_Bitmap *bitmap, u32 x, u32 y)
 	{
 		u32 framex, framey;
 		u32 tmpx, tmpy;
 		u8 *imageptr = bitmap->buffer;
-
 		if (bitmap->pixel_mode != FT_PIXEL_MODE_GRAY)
 			return;
 
@@ -557,8 +562,9 @@ public:
 			{
 				framex = x + tmpx;
 				framey = y + tmpy;
-
-				framebuf[framey * framebuf_width + framex] = RGBA8_MAXALPHA(imageptr[tmpx], imageptr[tmpx], imageptr[tmpx]);
+				if(imageptr[tmpx]==0xff)
+					if (framex >= 0 && framex < FB_WIDTH && framey >= 0 && framey < FB_HEIGHT)					
+						framebuf[framey * framebuf_width + framex] = fontcolor->rgba;
 			}
 
 			imageptr += bitmap->pitch;
@@ -567,8 +573,14 @@ public:
 
 	//Note that this doesn't handle {tmpx > width}, etc.
 	//str is UTF-8.
-	void draw_text(FT_Face face, u32 *framebuf, u32 x, u32 y, const char *str)
+	void draw_text(u32 x, u32 y, const char *str)
 	{
+		ret = FT_Set_Char_Size(
+		face,	 /* handle to face object           */
+		0,		 /* char_width in 1/64th of points  */
+		24 * 64, /* char_height in 1/64th of points */
+		0,		 /* horizontal device resolution    */
+		fontsize);	 /* vertical device resolution      */
 		u32 tmpx = x;
 		FT_Error ret = 0;
 		FT_UInt glyph_index;
@@ -610,7 +622,7 @@ public:
 			if (ret)
 				return;
 
-			draw_glyph(&slot->bitmap, framebuf, tmpx + slot->bitmap_left, y - slot->bitmap_top);
+			draw_glyph(&slot->bitmap, tmpx + slot->bitmap_left, y - slot->bitmap_top);
 
 			tmpx += slot->advance.x >> 6;
 			y += slot->advance.y >> 6;
@@ -638,19 +650,15 @@ public:
 								 font.size,						/* size in bytes        */
 								 0,								/* face_index           */
 								 &face);
-		ret = FT_Set_Char_Size(
-			face,	 /* handle to face object           */
-			0,		 /* char_width in 1/64th of points  */
-			24 * 64, /* char_height in 1/64th of points */
-			96,		 /* horizontal device resolution    */
-			96);	 /* vertical device resolution      */
+		SetFontColor(FG_WHITE);
+		SetFontSize(MEDIUM_FONT);
 	}
 	void DrawString(int x, int y, std::string tmp_str)
 	{
 		const char *str = tmp_str.c_str();
-		draw_text(face, framebuf, x, y, str);
+		draw_text(x, y, str);
 	}
-	void ClearAll()
+	void ClearScreen()
 	{
 		memset(framebuf,0x0,FB_WIDTH * FB_HEIGHT *sizeof(u32));
 	}
@@ -660,8 +668,9 @@ public:
 		m_nScreenHeight = height;
 		block_size_x = fontw;
 		block_size_y = fonth;
-		//init mouse pos
 
+		fontcolor = new RGBA();
+		//init mouse pos
 		touch = new touchPosition[5];
 		plInitialize(PlServiceType_User);
 		romfsInit();
@@ -729,14 +738,21 @@ public:
 			OnUserUpdate(fElapsedTime);
 			char s[10];
 			sprintf(s,"%3.2f",1.0f / fElapsedTime);
-			DrawString(500,30,std::string("FPS: ")+std::string(s));
+			DrawString(500,40,std::string("FPS: ")+std::string(s));
 			prev_touchcount = touch_count;
 			// Each pixel is 4-bytes due to RGBA8888.
-			// 开始渲染
 			// We're done rendering, so we end the frame here.
 			framebufferEnd(&fb);
 		}
 		OnUserDestroy();
+	}
+	void SetFontColor(uint32_t _rgba)
+	{
+		fontcolor->rgba = _rgba;
+	}
+	void SetFontSize(uint32_t _fontsize)
+	{
+		fontsize = _fontsize;
 	}
 	void SetBackGround(const char*file_path)
 	{
@@ -811,5 +827,7 @@ protected:
 	}m_mouse[5];
   //image
 	uint32_t* background;
+	RGBA* fontcolor;
+	uint32_t fontsize;
 };
 
