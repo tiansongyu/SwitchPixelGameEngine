@@ -218,22 +218,18 @@ public:
 
 	virtual void Draw(int x, int y,  u32 rgba)
 	{
-		if (x >= 0 && x < m_nScreenWidth && y >= 0 && y < m_nScreenHeight)
+		if (x >= 0 && x < FB_WIDTH && y >= 0 && y < FB_HEIGHT)
 		{
-			//if(framebuf[(y* block_size_y + 0) * FB_WIDTH + (x * block_size_x + 0)] == rgba)
-			//	return;
 			if((rgba >> 24) == 0x00)
 				return ;
 			if((rgba >> 24) != 0xFF)
 			{
 				rgba = AlphaMix(x * block_size_x + 0,y* block_size_y + 0,rgba);
 			}
-			uint16_t _x = x* block_size_x;
-			uint16_t _y = y* block_size_y;
 			for(uint8_t dx = 0; dx < block_size_x ; dx++)
 				for(uint8_t dy =0; dy < block_size_y ; dy++)
 				{
-					framebuf[(_y + dy) * FB_WIDTH + (_x + dx)] = rgba;
+					framebuf[(y* block_size_y + dy) * FB_WIDTH + (x* block_size_x + dx)] = rgba;
 				}
 		}
 
@@ -542,9 +538,9 @@ public:
 	void Clip(int &x, int &y)
 	{
 		if (x < 0) x = 0;
-		if (x >= m_nScreenWidth) x = m_nScreenWidth;
+		if (x >= FB_WIDTH) x = FB_WIDTH;
 		if (y < 0) y = 0;
-		if (y >= m_nScreenHeight) y = m_nScreenHeight;
+		if (y >= FB_HEIGHT) y = FB_HEIGHT;
 	}
 
 public:
@@ -678,7 +674,7 @@ public:
 
 		//init windows
 		win = nwindowGetDefault();
-		framebufferCreate(&fb, win, FB_WIDTH, FB_HEIGHT, PIXEL_FORMAT_RGBA_8888, 2);
+		framebufferCreate(&fb, win, FB_WIDTH, FB_HEIGHT, PIXEL_FORMAT_RGBA_8888, 3);
 		framebufferMakeLinear(&fb);
 		//字体初始化
 		FontInit();

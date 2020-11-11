@@ -95,7 +95,7 @@ public:
 int main()
 {
     Demo example;
-    example.ConstructConsole(640,360,2,2);
+    example.ConstructConsole(1280,720,1,1);
     example.GameThread();
     return 0;
 }
