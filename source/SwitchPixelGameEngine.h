@@ -136,6 +136,7 @@ public:
 	}
 	~SgeSprite()
 	{
+		delete[] m_Colours;
 	}
 	SgeSprite(uint32_t x,uint32_t y,uint32_t w,uint32_t h,COLOUR color = FG_RED)
 	{
@@ -221,17 +222,17 @@ public:
 		{
 			//if(framebuf[(y* block_size_y + 0) * FB_WIDTH + (x * block_size_x + 0)] == rgba)
 			//	return;
+			if((rgba >> 24) == 0x00)
+				return ;
+			if((rgba >> 24) != 0xFF)
+			{
+				rgba = AlphaMix(x * block_size_x + 0,y* block_size_y + 0,rgba);
+			}
 			uint16_t _x = x* block_size_x;
 			uint16_t _y = y* block_size_y;
 			for(uint8_t dx = 0; dx < block_size_x ; dx++)
 				for(uint8_t dy =0; dy < block_size_y ; dy++)
 				{
-					if((rgba >> 24) == 0x00)
-						return ;
-					if((rgba >> 24) != 0xFF)
-					{
-						rgba = AlphaMix(x * block_size_x + dx,y* block_size_y + dy,rgba);
-					}
 					framebuf[(_y + dy) * FB_WIDTH + (_x + dx)] = rgba;
 				}
 		}
@@ -789,6 +790,8 @@ public:
 		plExit();
 		romfsExit();
 		delete[] touch;
+		delete fontcolor;
+		delete[] background;
 	}
 protected:
 	int m_nScreenWidth;

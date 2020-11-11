@@ -29,8 +29,8 @@ public:
     }
     virtual bool OnUserCreate() override
     {
-        picture = new SgeSprite(800,0,447,450,"romfs:/maliao.bin");
-        //SetBackGround("romfs:/image.bin");
+        picture = new SgeSprite(800,0,447,450,"romfs:/image/maliao.bin");
+        //SetBackGround("romfs:/image/image.bin");
         return true;
     }
     virtual bool OnUserUpdate(float fElapsedTime) override
@@ -95,7 +95,7 @@ public:
 int main()
 {
     Demo example;
-    example.ConstructConsole(1280,720,1,1);
+    example.ConstructConsole(640,360,2,2);
     example.GameThread();
     return 0;
 }
