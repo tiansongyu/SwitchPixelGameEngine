@@ -78,6 +78,7 @@ int main()
 #include <stdio.h>
 #include <string>
 #include <chrono>
+#include <png.h>
 extern "C"
 {
 #include <ft2build.h>
@@ -114,6 +115,12 @@ enum MODE{
 	PICTURE,
 	PIXEL,
 };
+struct PNG_DATA
+{	
+	uint32_t nWight;
+	uint32_t nHeignt;
+	uint32_t* colour;
+};
 struct RGBA
 {
 	union 
@@ -122,6 +129,93 @@ struct RGBA
 		uint8_t color[4];
 	};
 };
+PNG_DATA  PNGtoRGBA(const char* file_path)
+{
+	FILE *fp = fopen(file_path, "rb");
+
+	png_structp png = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+	if(!png) abort();
+
+	png_infop info = png_create_info_struct(png);
+	if(!info) abort();
+
+	if(setjmp(png_jmpbuf(png))) abort();
+
+	png_init_io(png, fp);
+
+	png_read_info(png, info);
+
+	uint32_t _nWidth      = png_get_image_width(png, info);
+	uint32_t _nHeight     = png_get_image_height(png, info);
+	png_byte color_type = png_get_color_type(png, info);
+	png_byte bit_depth  = png_get_bit_depth(png, info);
+
+	uint32_t* _m_Colours = new uint32_t[_nWidth * _nHeight];
+	memset(_m_Colours,0x0,_nWidth * _nHeight *sizeof(uint32_t));
+
+	// Read any color_type into 8bit depth, RGBA format.
+	// See http://www.libpng.org/pub/png/libpng-manual.txt
+
+	if(bit_depth == 16)
+		png_set_strip_16(png);
+
+	if(color_type == PNG_COLOR_TYPE_PALETTE)
+		png_set_palette_to_rgb(png);
+
+	// PNG_COLOR_TYPE_GRAY_ALPHA is always 8 or 16bit depth.
+	if(color_type == PNG_COLOR_TYPE_GRAY && bit_depth < 8)
+		png_set_expand_gray_1_2_4_to_8(png);
+
+	if(png_get_valid(png, info, PNG_INFO_tRNS))
+		png_set_tRNS_to_alpha(png);
+
+	// These color_type don't have an alpha channel then fill it with 0xff.
+	if(color_type == PNG_COLOR_TYPE_RGB ||
+		color_type == PNG_COLOR_TYPE_GRAY ||
+		color_type == PNG_COLOR_TYPE_PALETTE)
+		png_set_filler(png, 0xff, PNG_FILLER_AFTER);
+
+	if(color_type == PNG_COLOR_TYPE_GRAY ||
+		color_type == PNG_COLOR_TYPE_GRAY_ALPHA)
+		png_set_gray_to_rgb(png);
+
+	png_read_update_info(png, info);
+
+	png_bytep* row_pointers = (png_bytep*)malloc(sizeof(png_bytep) * _nHeight);
+	for(uint32_t y = 0; y < _nHeight; y++) {
+		row_pointers[y] = (png_byte*)malloc(png_get_rowbytes(png,info));
+	}
+	png_read_image(png, row_pointers);
+
+	fclose(fp);
+
+	png_destroy_read_struct(&png, &info, NULL);
+
+	RGBA _rgba;
+	for(uint32_t y = 0; y < _nHeight; y++)
+	{
+		png_bytep row = row_pointers[y];
+		for(uint32_t x = 0; x < _nWidth; x++)
+		{
+			png_bytep px = &(row[x * 4]);
+
+			_rgba.color[0] = px[0];
+			_rgba.color[1] = px[1];
+			_rgba.color[2] = px[2];
+			_rgba.color[3] = px[3];			
+			_m_Colours[y * _nWidth + x] = _rgba.rgba;
+		}
+	} 
+	PNG_DATA _png;
+	_png.nWight = _nWidth;
+	_png.nHeignt = _nHeight;
+	_png.colour = _m_Colours;
+	for(uint32_t y = 0; y < _nHeight; y++) {
+		free(row_pointers[y]);
+	}
+	free(row_pointers);
+	return _png;
+}
 class SgeSprite
 {
 public:
@@ -149,21 +243,19 @@ public:
 		m_Colours = new uint32_t[nWidth * nHeight];
 		memset(m_Colours,color,w * h);
 	}
-	SgeSprite(uint32_t x,uint32_t y,uint32_t w,uint32_t h, const char* file_path)
+	SgeSprite(uint32_t x,uint32_t y,const char* file_path)
 	{	
 		pos_x = x;
 		pos_y = y;	
-		nWidth = w ;
-		nHeight = h;
 		mode = MODE::PICTURE;
-		m_Colours = new uint32_t[nWidth * nHeight];
-
-		memset(m_Colours,0x0,nWidth * nHeight *sizeof(uint32_t));
- 		FILE* fp;	
-		fp = fopen(file_path,"rb");
-		fread(m_Colours,sizeof(uint32_t),nWidth * nHeight,fp);
-		fclose(fp); 
+		
+		PNG_DATA _png;
+		_png = PNGtoRGBA(file_path);
+		nWidth = _png.nWight;
+		nHeight = _png.nHeignt;
+		m_Colours = _png.colour;
 	}
+	
 	void SetPosition(uint32_t x,uint32_t y)
 	{
 		pos_x = x;
@@ -180,7 +272,7 @@ public:
 	uint32_t nWidth,nHeight;
 	uint32_t pos_x,pos_y;
 private:
-	uint32_t* m_Colours = nullptr;
+	uint32_t* m_Colours ;
 	COLOUR pixel_color ;
 	MODE mode ;
 
@@ -207,12 +299,7 @@ public:
 		for(uint32_t y = 0; y< sprite->GetHeight(); y++)
 			for(uint32_t x = 0 ; x < sprite->GetWight() ; x++)
 			{
-				if(tmp_mode == MODE::PIXEL)
-					Draw(sprite->GetPos_x() + x,sprite->GetPos_y()  + y  ,sprite->GetPixelColour());
-				else
-				{
-					Draw(sprite->GetPos_x() + x,sprite->GetPos_y()  + y  ,tmp_color[y * sprite->GetWight() + x]);
-				}
+				Draw(sprite->GetPos_x() + x,sprite->GetPos_y()  + y  ,tmp_mode == MODE::PIXEL ?sprite->GetPixelColour() : tmp_color[y * sprite->GetWight() + x]);
 			}	
 	}
 
@@ -220,8 +307,6 @@ public:
 	{
 		if (x >= 0 && x < m_nScreenWidth && y >= 0 && y < m_nScreenHeight)
 		{
-			//if(framebuf[(y* block_size_y + 0) * FB_WIDTH + (x * block_size_x + 0)] == rgba)
-			//	return;
 			if((rgba >> 24) == 0x00)
 				return ;
 			if((rgba >> 24) != 0xFF)
@@ -663,10 +748,10 @@ public:
 	{
 		memset(framebuf,0x0,FB_WIDTH * FB_HEIGHT *sizeof(u32));
 	}
-	int ConstructConsole(int width,int height,int fontw,int fonth)
+	int ConstructConsole(int fontw,int fonth)
 	{
-		m_nScreenWidth = width;
-		m_nScreenHeight = height;
+		m_nScreenWidth = FB_WIDTH * 1.0f / fontw;
+		m_nScreenHeight = FB_HEIGHT * 1.0f / fonth;
 		block_size_x = fontw;
 		block_size_y = fonth;
 
@@ -678,7 +763,7 @@ public:
 
 		//init windows
 		win = nwindowGetDefault();
-		framebufferCreate(&fb, win, FB_WIDTH, FB_HEIGHT, PIXEL_FORMAT_RGBA_8888, 2);
+		framebufferCreate(&fb, win, FB_WIDTH, FB_HEIGHT, PIXEL_FORMAT_RGBA_8888, 3);
 		framebufferMakeLinear(&fb);
 		//字体初始化
 		FontInit();
@@ -731,11 +816,10 @@ public:
 			}
 			/*****************************************************************/
 			// Retrieve the framebuffer
-			// 建立屏幕缓冲区
+
 			framebuf = (u32 *)framebufferBegin(&fb, &stride);
 			framebuf_width = stride / sizeof(u32);
-			// 用户接口
-
+			
 			OnUserUpdate(fElapsedTime);
 			char s[10];
 			sprintf(s,"%3.2f",1.0f / fElapsedTime);
@@ -758,10 +842,7 @@ public:
 	void SetBackGround(const char*file_path)
 	{
 		background = new uint32_t[FB_WIDTH * FB_HEIGHT];
-		FILE* fp;	
-		fp = fopen(file_path,"rb");
-		fread(background,sizeof(uint32_t),FB_WIDTH * FB_HEIGHT,fp);
-		fclose(fp); 
+		background = PNGtoRGBA(file_path).colour;
 	}
 	void displayBackGround()
 	{

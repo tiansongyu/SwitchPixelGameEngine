@@ -29,8 +29,8 @@ public:
     }
     virtual bool OnUserCreate() override
     {
-        picture = new SgeSprite(800,0,447,450,"romfs:/image/maliao.bin");
-        //SetBackGround("romfs:/image/image.bin");
+        picture = new SgeSprite(ScreenWidth()* 2 /3 , 0,"romfs:/image/maliao.png");
+        SetBackGround("romfs:/image/background.png");
         return true;
     }
     virtual bool OnUserUpdate(float fElapsedTime) override
@@ -40,7 +40,7 @@ public:
         //SetFontSize(LARGE_FONT);
         /**********************************************************************************/
         //Draw and Fill graphics
-        //displayBackGround();
+        displayBackGround();
         Fill(0,0,ScreenWidth()/5,ScreenHeight()/5,FG_RED);
         Fill(ScreenWidth()/15,ScreenHeight()/15,ScreenWidth()/4, ScreenHeight()/4,0x4400FFff);
         DrawTriangle(ScreenWidth()/2,ScreenHeight()/2,ScreenWidth()/3-100,ScreenHeight()/3+100,ScreenWidth()/4,ScreenHeight()/4,FG_YELLOW);
@@ -50,9 +50,9 @@ public:
         //keyboard input 
         if(KeyDown(KEY_UP) || KeyHeld(KEY_UP) ) 
         {
-            DrawString(0,ScreenHeight()/2,"UP KEY is down");
             picture->SetPosition(picture->GetPos_x(),picture->GetPos_y()-10);
         }
+        if(KeyDown(KEY_UP)) DrawString(0,ScreenHeight()/2,"UP KEY is down");
         if(KeyUp(KEY_UP)) DrawString(0,ScreenHeight()/3,"UP KEY is kUp");
         if(KeyHeld(KEY_UP)) DrawString(0,ScreenHeight()/4,"UP KEY is held");
 
@@ -95,7 +95,7 @@ public:
 int main()
 {
     Demo example;
-    example.ConstructConsole(640,360,2,2);
+    example.ConstructConsole(1,1);
     example.GameThread();
     return 0;
 }
