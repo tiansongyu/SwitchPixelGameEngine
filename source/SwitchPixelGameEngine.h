@@ -773,7 +773,7 @@ public:
 		touch = new touchPosition[5];
 		rc = plInitialize(PlServiceType_User);
 		if (R_FAILED(rc))
-        	fatalThrow(rc);
+        	fatalThrow(rc); 
 		romfsInit();
 		//init windows
 		framebufferCreate(&fb, nwindowGetDefault(), FB_WIDTH, FB_HEIGHT, PIXEL_FORMAT_RGBA_8888, 3);
