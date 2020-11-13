@@ -13,10 +13,8 @@ Curious about what's next? See my to-do list on [Trello](https://trello.com/b/B6
 ### 1. Install packages through (dkp-)pacman :
 
 ```
-devkit-env
-devkitA64
-libnx
 switch-freetype
+switch-libpng
 ```
 
 ### 2. Add the header file

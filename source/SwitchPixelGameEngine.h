@@ -776,8 +776,7 @@ public:
         	fatalThrow(rc);
 		romfsInit();
 		//init windows
-		win = nwindowGetDefault();
-		framebufferCreate(&fb, win, FB_WIDTH, FB_HEIGHT, PIXEL_FORMAT_RGBA_8888, 3);
+		framebufferCreate(&fb, nwindowGetDefault(), FB_WIDTH, FB_HEIGHT, PIXEL_FORMAT_RGBA_8888, 3);
 		framebufferMakeLinear(&fb);
 		//字体初始化
 		FontInit();
