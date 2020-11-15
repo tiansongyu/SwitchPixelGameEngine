@@ -7,7 +7,7 @@ Curious about what's next? See my to-do list on [Trello](https://trello.com/b/B6
 
 # How to use it? 
 
-- **Pleaase view the [Wiki](https://github.com/tiansongyu/Example_SwitchPixelGameEngine)(WIP) to know the Detail**
+- **Pleaase view the [Wiki](https://github.com/tiansongyu/SwitchPixelGameEngine/wiki)(WIP) to know the Detail**
 - **You can find some Demo [from here](https://github.com/tiansongyu/Example_SwitchPixelGameEngine)(WIP)**
 
 
