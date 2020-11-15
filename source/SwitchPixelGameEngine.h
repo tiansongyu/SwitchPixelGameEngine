@@ -18,7 +18,7 @@
 // SwitchPixelGameEngine is actively maintained and developed!
 
 //Version: 0.2
-// Last Updated: 2020/11/10
+// Last Updated: 2020/11/15
 /*
 Usage:
 ~~~~~~
@@ -33,7 +33,6 @@ the application to close.
 Example:
 
 #include "SwitchPixelGameEngine.h"
-#include <string>
 class Demo : public SwitchPixelGameEngine
 {
 public:
@@ -48,16 +47,10 @@ public:
     virtual bool OnUserUpdate(float fElapsedTime) override
     {
 
-        ClearAll();
-
-        //Fill(0,0,100,100,FG_RED);
-        //Fill(50,50,200, 200,FG_YELLOW);
-
+        ClearScreen();
         DrawTriangle(20,20,20,60,50,50,FG_YELLOW);
-
         DrawCircle(20,60,10,FG_GREEN);
         DrawString(ScreenWidth()/2, ScreenHeight()/2, s_str);
-
         return true;
     }
 };
@@ -65,10 +58,9 @@ public:
 int main()
 {
     Demo example;
-    example.ConstructConsole(1280,720,1,1);
+    example.ConstructConsole(1,1);
     example.GameThread();
 }
-
 */
 
 #pragma once
@@ -873,7 +865,7 @@ public:
 	int ScreenHeight(){return m_nScreenHeight;}
   
 public:
-	virtual bool OnUserCreate() = 0;
+	virtual bool OnUserCreate() {};
 	virtual bool OnUserUpdate(float fElapsedTime) = 0;
 	virtual bool OnUserDestroy() { return true; }
 	~SwitchPixelGameEngine()
