@@ -877,7 +877,6 @@ public:
 		romfsExit();
 		delete[] touch;
 		delete fontcolor;
-		delete[] background;
 	}
 protected:
 	int m_nScreenWidth;

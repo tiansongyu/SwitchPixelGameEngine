@@ -20,11 +20,6 @@
 //Version: 0.2
 // Last Updated: 2020/11/10
 #include "SwitchPixelGameEngine.h"
-#include <string>
-
-
-
-
 class Demo : public SwitchPixelGameEngine
 {
 public:
