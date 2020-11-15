@@ -18,7 +18,7 @@
 // SwitchPixelGameEngine is actively maintained and developed!
 
 //Version: 0.2
-// Last Updated: 2020/11/10
+// Last Updated: 2020/11/15
 /*
 Usage:
 ~~~~~~
@@ -33,7 +33,6 @@ the application to close.
 Example:
 
 #include "SwitchPixelGameEngine.h"
-#include <string>
 class Demo : public SwitchPixelGameEngine
 {
 public:
@@ -48,16 +47,10 @@ public:
     virtual bool OnUserUpdate(float fElapsedTime) override
     {
 
-        ClearAll();
-
-        //Fill(0,0,100,100,FG_RED);
-        //Fill(50,50,200, 200,FG_YELLOW);
-
+        ClearScreen();
         DrawTriangle(20,20,20,60,50,50,FG_YELLOW);
-
         DrawCircle(20,60,10,FG_GREEN);
         DrawString(ScreenWidth()/2, ScreenHeight()/2, s_str);
-
         return true;
     }
 };
@@ -65,10 +58,9 @@ public:
 int main()
 {
     Demo example;
-    example.ConstructConsole(1280,720,1,1);
+    example.ConstructConsole(1,1);
     example.GameThread();
 }
-
 */
 
 #pragma once
@@ -132,7 +124,6 @@ struct RGBA
 PNG_DATA  PNGtoRGBA(const char* file_path)
 {
 	FILE *fp = fopen(file_path, "rb");
-
 	png_structp png = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
 	if(!png) abort();
 
@@ -652,7 +643,6 @@ public:
 					if (framex >= 0 && framex < FB_WIDTH && framey >= 0 && framey < FB_HEIGHT)					
 						framebuf[framey * framebuf_width + framex] = fontcolor->rgba;
 			}
-
 			imageptr += bitmap->pitch;
 		}
 	}
@@ -739,14 +729,29 @@ public:
 		SetFontColor(FG_WHITE);
 		SetFontSize(MEDIUM_FONT);
 	}
-	void DrawString(int x, int y, std::string tmp_str)
+	void DrawString(int x, int y, const char *str)
 	{
-		const char *str = tmp_str.c_str();
 		draw_text(x, y, str);
 	}
 	void ClearScreen()
 	{
 		memset(framebuf,0x0,FB_WIDTH * FB_HEIGHT *sizeof(u32));
+	}
+	void ERROR(const char* str)
+	{
+ 
+		framebufferEnd(&fb);
+		while (appletMainLoop())
+		{
+			hidScanInput();
+			ClearScreen();
+			if (KeyDown(KEY_PLUS))
+				break;
+			framebuf = (u32 *)framebufferBegin(&fb, &stride);
+			framebuf_width = stride / sizeof(u32);
+			DrawString(ScreenWidth()/2,ScreenHeight()/2,str);
+			framebufferEnd(&fb);
+		}
 	}
 	int ConstructConsole(int fontw,int fonth)
 	{
@@ -758,12 +763,12 @@ public:
 		fontcolor = new RGBA();
 		//init mouse pos
 		touch = new touchPosition[5];
-		plInitialize(PlServiceType_User);
+		rc = plInitialize(PlServiceType_User);
+		if (R_FAILED(rc))
+        	fatalThrow(rc); 
 		romfsInit();
-
 		//init windows
-		win = nwindowGetDefault();
-		framebufferCreate(&fb, win, FB_WIDTH, FB_HEIGHT, PIXEL_FORMAT_RGBA_8888, 3);
+		framebufferCreate(&fb, nwindowGetDefault(), FB_WIDTH, FB_HEIGHT, PIXEL_FORMAT_RGBA_8888, 3);
 		framebufferMakeLinear(&fb);
 		//字体初始化
 		FontInit();
@@ -822,8 +827,8 @@ public:
 			
 			OnUserUpdate(fElapsedTime);
 			char s[10];
-			sprintf(s,"%3.2f",1.0f / fElapsedTime);
-			DrawString(500,40,std::string("FPS: ")+std::string(s));
+			sprintf(s,"FPS: %3.2f",1.0f / fElapsedTime);
+			DrawString(500,40,s);
 			prev_touchcount = touch_count;
 			// Each pixel is 4-bytes due to RGBA8888.
 			// We're done rendering, so we end the frame here.
@@ -860,7 +865,7 @@ public:
 	int ScreenHeight(){return m_nScreenHeight;}
   
 public:
-	virtual bool OnUserCreate() = 0;
+	virtual bool OnUserCreate() {};
 	virtual bool OnUserUpdate(float fElapsedTime) = 0;
 	virtual bool OnUserDestroy() { return true; }
 	~SwitchPixelGameEngine()

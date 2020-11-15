@@ -5,18 +5,18 @@ An easy-to-use PixelGameEngine for Nintendo Switch homebrew game
 
 Curious about what's next? See my to-do list on [Trello](https://trello.com/b/B6yaX5u3/switchpixelgameengine)
 
-# Example 
+# How to use it? 
 
-- **You can find some Demo [from here](https://github.com/tiansongyu/Example_SwitchPixelGameEngine)**
+- **Pleaase view the [Wiki](https://github.com/tiansongyu/Example_SwitchPixelGameEngine)(WIP) to know the Detail**
+- **You can find some Demo [from here](https://github.com/tiansongyu/Example_SwitchPixelGameEngine)(WIP)**
+
 
 ## Incorporating into your Project
 ### 1. Install packages through (dkp-)pacman :
 
 ```
-devkit-env
-devkitA64
-libnx
 switch-freetype
+switch-libpng
 ```
 
 ### 2. Add the header file
