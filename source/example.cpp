@@ -20,7 +20,6 @@
 //Version: 0.2
 // Last Updated: 2020/11/10
 #include "SwitchPixelGameEngine.h"
-#include <string>
 class Demo : public SwitchPixelGameEngine
 {
 public:
@@ -75,10 +74,11 @@ public:
             sum++;
         }
         char t1[50];
-        sprintf(t1,"%d %d\nmouse released number is %d",mouse_pos_x,mouse_pos_y, sum);
-        DrawString(ScreenWidth()/2-200,ScreenHeight()/2 + 200,std::string("mouse pos is") + std::string(t1));
+        sprintf(t1,"mouse pos is %d %d\nmouse released number is %d",mouse_pos_x,mouse_pos_y, sum);
+        DrawString(ScreenWidth()/2-200,ScreenHeight()/2 + 200,t1);
         /**********************************************************************************/
         DrawSprite(picture); 
+    
         return true;
     }
     virtual bool OnUserDestroy() override
@@ -87,7 +87,7 @@ public:
         return true;
     }
  public:
-    std::string s_str = "你好 world !";
+    const char* s_str = "你好 world !";
     int sum =0;
     SgeSprite* picture;
 };
