@@ -216,8 +216,6 @@ public:
 		nHeight = 0;
 		pos_x = 0;
 		pos_y = 0;
-		pixel_color = FG_RED;
-		mode = MODE::PIXEL ;
 	}
 	~SgeSprite()
 	{
@@ -229,17 +227,13 @@ public:
 		pos_y = y;
 		nWidth = w ;
 		nHeight = h;
-		mode = MODE::PIXEL;
-		pixel_color = color;
 		m_Colours = new uint32_t[nWidth * nHeight];
-		memset(m_Colours,color,w * h);
+		memset(m_Colours,color,w * h * sizeof(uint32_t));
 	}
 	SgeSprite(uint32_t x,uint32_t y,const char* file_path)
 	{	
 		pos_x = x;
 		pos_y = y;	
-		mode = MODE::PICTURE;
-		
 		PNG_DATA _png;
 		_png = PNGtoRGBA(file_path);
 		nWidth = _png.nWight;
@@ -257,16 +251,11 @@ public:
 	uint32_t GetWight(){return nWidth;}
 	uint32_t GetHeight(){return nHeight;}
 	uint32_t* GetColour(){return m_Colours;}
-	COLOUR  GetPixelColour(){return pixel_color;}
-	MODE GetMode(){return mode;}
 public:
 	uint32_t nWidth,nHeight;
 	uint32_t pos_x,pos_y;
 private:
 	uint32_t* m_Colours ;
-	COLOUR pixel_color ;
-	MODE mode ;
-
 };
 
 class SwitchPixelGameEngine
@@ -283,15 +272,28 @@ public:
 		mouse_pos_y = 0 ;
 	}
 public:
-	void DrawSprite(SgeSprite* sprite)
+	void DrawSprite(SgeSprite* sprite , uint32_t scale = 1)
 	{	
+		if(sprite == nullptr)
+			return ;
 		uint32_t* tmp_color = sprite->GetColour();
-		MODE tmp_mode = sprite->GetMode();
-		for(uint32_t y = 0; y< sprite->GetHeight(); y++)
-			for(uint32_t x = 0 ; x < sprite->GetWight() ; x++)
-			{
-				Draw(sprite->GetPos_x() + x,sprite->GetPos_y()  + y  ,tmp_mode == MODE::PIXEL ?sprite->GetPixelColour() : tmp_color[y * sprite->GetWight() + x]);
-			}	
+		if(scale ==1)
+			for(uint32_t y = 0; y< sprite->GetHeight(); y++)
+				for(uint32_t x = 0 ; x < sprite->GetWight() ; x++)
+				{
+					Draw(sprite->GetPos_x() + x,sprite->GetPos_y()  + y  ,tmp_color[y * sprite->GetWight() + x]);
+				}	
+		else
+		{
+			for(uint32_t y = 0; y< sprite->GetHeight(); y++)
+				for(uint32_t x = 0 ; x < sprite->GetWight() ; x++)
+				{
+					for(uint32_t scale_x = 0;scale_x < scale ;scale_x++)
+						for(uint32_t scale_y = 0;scale_y < scale ;scale_y++)
+							Draw(sprite->GetPos_x() + x * scale  + scale_x,sprite->GetPos_y()  + y * scale + scale_y ,tmp_color[y * sprite->GetWight() + x]);
+				}	
+		}
+		
 	}
 
 	virtual void Draw(int x, int y,  u32 rgba)
@@ -865,7 +867,7 @@ public:
 	int ScreenHeight(){return m_nScreenHeight;}
   
 public:
-	virtual bool OnUserCreate() {};
+	virtual bool OnUserCreate() {return true;};
 	virtual bool OnUserUpdate(float fElapsedTime) = 0;
 	virtual bool OnUserDestroy() { return true; }
 	~SwitchPixelGameEngine()

@@ -29,6 +29,7 @@ public:
     virtual bool OnUserCreate() override
     {
         picture = new SgeSprite(ScreenWidth()* 2 /3 , 0,"romfs:/image/maliao.png");
+
         SetBackGround("romfs:/image/background.png");
         return true;
     }
