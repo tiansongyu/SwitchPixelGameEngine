@@ -277,20 +277,29 @@ public:
 		if(sprite == nullptr)
 			return ;
 		uint32_t* tmp_color = sprite->GetColour();
+		uint32_t pos_x = sprite->GetPos_x();
+		uint32_t pos_y = sprite->GetPos_y();
+		uint32_t spr_wight = sprite->GetWight();
 		if(scale ==1)
 			for(uint32_t y = 0; y< sprite->GetHeight(); y++)
 				for(uint32_t x = 0 ; x < sprite->GetWight() ; x++)
 				{
-					Draw(sprite->GetPos_x() + x,sprite->GetPos_y()  + y  ,tmp_color[y * sprite->GetWight() + x]);
+					Draw(pos_x + x,pos_y  + y  ,tmp_color[y * spr_wight + x]);
 				}	
 		else
 		{
+			int draw_x ,draw_y;
 			for(uint32_t y = 0; y< sprite->GetHeight(); y++)
 				for(uint32_t x = 0 ; x < sprite->GetWight() ; x++)
 				{
 					for(uint32_t scale_x = 0;scale_x < scale ;scale_x++)
 						for(uint32_t scale_y = 0;scale_y < scale ;scale_y++)
-							Draw(sprite->GetPos_x() + x * scale  + scale_x,sprite->GetPos_y()  + y * scale + scale_y ,tmp_color[y * sprite->GetWight() + x]);
+						{
+							draw_x = pos_x  + x * scale  +  scale_x;
+							draw_y = pos_y  + y * scale  +  scale_y;
+							if(draw_x>=0 && draw_x <1280 && draw_y >= 0 && draw_y < 720)
+								Draw(draw_x,draw_y,tmp_color[y * spr_wight + x]);
+						}
 				}	
 		}
 		
@@ -333,13 +342,31 @@ public:
 	{
 		return framebuf[y * FB_WIDTH + x];
 	}
-	void Fill(int x1, int y1, int x2, int y2, const u32 rgba)
+	void DrawRect(int x, int y, int w, int h, const u32 rgba)
 	{
-		Clip(x1, y1);
-		Clip(x2, y2);
-		for (int x = x1; x < x2; x++)
-			for (int y = y1; y < y2; y++)
-				Draw(x, y, rgba);
+
+		if (x < 0) x = 0;
+		if (x + w >= m_nScreenWidth) x = m_nScreenWidth;
+		if (y < 0) y = 0;
+		if (y + h >= m_nScreenHeight) y = m_nScreenHeight;
+
+		DrawLine(x,y,x+w,y,rgba);
+		DrawLine(x+w,y,x+w,y+h,rgba);
+		DrawLine(x+w,y+h,x,y+h,rgba);
+		DrawLine(x,y+h,x,y,rgba);
+
+	}
+	void FillRect(int x, int y, int w, int h, const u32 rgba)
+	{
+
+		if (x < 0) x = 0;
+		if (x + w >= m_nScreenWidth) x = m_nScreenWidth;
+		if (y < 0) y = 0;
+		if (y + h >= m_nScreenHeight) y = m_nScreenHeight;
+
+		for (int _x = x; _x < x + w; _x++)
+			for (int _y = y; _y < y + h; _y++)
+				Draw(_x, _y, rgba);
 	}
 
 	void DrawCircle(int xc, int yc, int r, const u32 rgba = FG_RED)
