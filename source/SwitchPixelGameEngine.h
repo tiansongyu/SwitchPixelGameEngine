@@ -216,8 +216,6 @@ public:
 		nHeight = 0;
 		pos_x = 0;
 		pos_y = 0;
-		pixel_color = FG_RED;
-		mode = MODE::PIXEL ;
 	}
 	~SgeSprite()
 	{
@@ -229,17 +227,13 @@ public:
 		pos_y = y;
 		nWidth = w ;
 		nHeight = h;
-		mode = MODE::PIXEL;
-		pixel_color = color;
 		m_Colours = new uint32_t[nWidth * nHeight];
-		memset(m_Colours,color,w * h);
+		memset(m_Colours,color,w * h * sizeof(uint32_t));
 	}
 	SgeSprite(uint32_t x,uint32_t y,const char* file_path)
 	{	
 		pos_x = x;
 		pos_y = y;	
-		mode = MODE::PICTURE;
-		
 		PNG_DATA _png;
 		_png = PNGtoRGBA(file_path);
 		nWidth = _png.nWight;
@@ -257,16 +251,11 @@ public:
 	uint32_t GetWight(){return nWidth;}
 	uint32_t GetHeight(){return nHeight;}
 	uint32_t* GetColour(){return m_Colours;}
-	COLOUR  GetPixelColour(){return pixel_color;}
-	MODE GetMode(){return mode;}
 public:
 	uint32_t nWidth,nHeight;
 	uint32_t pos_x,pos_y;
 private:
 	uint32_t* m_Colours ;
-	COLOUR pixel_color ;
-	MODE mode ;
-
 };
 
 class SwitchPixelGameEngine
@@ -283,15 +272,37 @@ public:
 		mouse_pos_y = 0 ;
 	}
 public:
-	void DrawSprite(SgeSprite* sprite)
+	void DrawSprite(SgeSprite* sprite , uint32_t scale = 1)
 	{	
+		if(sprite == nullptr)
+			return ;
 		uint32_t* tmp_color = sprite->GetColour();
-		MODE tmp_mode = sprite->GetMode();
-		for(uint32_t y = 0; y< sprite->GetHeight(); y++)
-			for(uint32_t x = 0 ; x < sprite->GetWight() ; x++)
-			{
-				Draw(sprite->GetPos_x() + x,sprite->GetPos_y()  + y  ,tmp_mode == MODE::PIXEL ?sprite->GetPixelColour() : tmp_color[y * sprite->GetWight() + x]);
-			}	
+		uint32_t pos_x = sprite->GetPos_x();
+		uint32_t pos_y = sprite->GetPos_y();
+		uint32_t spr_wight = sprite->GetWight();
+		if(scale ==1)
+			for(uint32_t y = 0; y< sprite->GetHeight(); y++)
+				for(uint32_t x = 0 ; x < sprite->GetWight() ; x++)
+				{
+					Draw(pos_x + x,pos_y  + y  ,tmp_color[y * spr_wight + x]);
+				}	
+		else
+		{
+			int draw_x ,draw_y;
+			for(uint32_t y = 0; y< sprite->GetHeight(); y++)
+				for(uint32_t x = 0 ; x < sprite->GetWight() ; x++)
+				{
+					for(uint32_t scale_x = 0;scale_x < scale ;scale_x++)
+						for(uint32_t scale_y = 0;scale_y < scale ;scale_y++)
+						{
+							draw_x = pos_x  + x * scale  +  scale_x;
+							draw_y = pos_y  + y * scale  +  scale_y;
+							if(draw_x>=0 && draw_x <1280 && draw_y >= 0 && draw_y < 720)
+								Draw(draw_x,draw_y,tmp_color[y * spr_wight + x]);
+						}
+				}	
+		}
+		
 	}
 
 	virtual void Draw(int x, int y,  u32 rgba)
@@ -331,13 +342,31 @@ public:
 	{
 		return framebuf[y * FB_WIDTH + x];
 	}
-	void Fill(int x1, int y1, int x2, int y2, const u32 rgba)
+	void DrawRect(int x, int y, int w, int h, const u32 rgba)
 	{
-		Clip(x1, y1);
-		Clip(x2, y2);
-		for (int x = x1; x < x2; x++)
-			for (int y = y1; y < y2; y++)
-				Draw(x, y, rgba);
+
+		if (x < 0) x = 0;
+		if (x + w >= m_nScreenWidth) x = m_nScreenWidth;
+		if (y < 0) y = 0;
+		if (y + h >= m_nScreenHeight) y = m_nScreenHeight;
+
+		DrawLine(x,y,x+w,y,rgba);
+		DrawLine(x+w,y,x+w,y+h,rgba);
+		DrawLine(x+w,y+h,x,y+h,rgba);
+		DrawLine(x,y+h,x,y,rgba);
+
+	}
+	void FillRect(int x, int y, int w, int h, const u32 rgba)
+	{
+
+		if (x < 0) x = 0;
+		if (x + w >= m_nScreenWidth) x = m_nScreenWidth;
+		if (y < 0) y = 0;
+		if (y + h >= m_nScreenHeight) y = m_nScreenHeight;
+
+		for (int _x = x; _x < x + w; _x++)
+			for (int _y = y; _y < y + h; _y++)
+				Draw(_x, _y, rgba);
 	}
 
 	void DrawCircle(int xc, int yc, int r, const u32 rgba = FG_RED)
@@ -865,7 +894,7 @@ public:
 	int ScreenHeight(){return m_nScreenHeight;}
   
 public:
-	virtual bool OnUserCreate() {};
+	virtual bool OnUserCreate() {return true;};
 	virtual bool OnUserUpdate(float fElapsedTime) = 0;
 	virtual bool OnUserDestroy() { return true; }
 	~SwitchPixelGameEngine()

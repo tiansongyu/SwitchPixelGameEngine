@@ -29,6 +29,7 @@ public:
     virtual bool OnUserCreate() override
     {
         picture = new SgeSprite(ScreenWidth()* 2 /3 , 0,"romfs:/image/maliao.png");
+
         SetBackGround("romfs:/image/background.png");
         return true;
     }
@@ -40,8 +41,8 @@ public:
         /**********************************************************************************/
         //Draw and Fill graphics
         displayBackGround();
-        Fill(0,0,ScreenWidth()/5,ScreenHeight()/5,FG_RED);
-        Fill(ScreenWidth()/15,ScreenHeight()/15,ScreenWidth()/4, ScreenHeight()/4,0x4400FFff);
+        DrawRect(20,20,100,100,FG_RED);
+        FillRect(50,50,100, 100,0x4400FFff);
         DrawTriangle(ScreenWidth()/2,ScreenHeight()/2,ScreenWidth()/3-100,ScreenHeight()/3+100,ScreenWidth()/4,ScreenHeight()/4,FG_YELLOW);
         DrawCircle(ScreenWidth()/2,ScreenHeight()/2,ScreenWidth()/10,FG_GREEN);
         DrawString(ScreenWidth()/2, ScreenHeight()/2, s_str);  
