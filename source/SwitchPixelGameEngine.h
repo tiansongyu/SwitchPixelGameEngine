@@ -302,7 +302,6 @@ public:
 						}
 				}	
 		}
-		
 	}
 
 	void DrawPartialSprite(SgeSprite* sprite,uint32_t ox,uint32_t oy,int w,int h,uint32_t scale =1)
