@@ -302,7 +302,38 @@ public:
 						}
 				}	
 		}
-		
+	}
+
+	void DrawPartialSprite(SgeSprite* sprite,uint32_t ox,uint32_t oy,int w,int h,uint32_t scale =1)
+	{
+		if(sprite == nullptr)
+			return ;
+		uint32_t* tmp_color = sprite->GetColour();
+		uint32_t pos_x = sprite->GetPos_x();
+		uint32_t pos_y = sprite->GetPos_y();
+		uint32_t spr_wight = sprite->GetWight();
+		if(scale ==1)
+			for(uint32_t y = oy; y< oy+h; y++)
+				for(uint32_t x = ox ; x < ox+w ; x++)
+				{
+					Draw(pos_x + x,pos_y  + y  ,tmp_color[y * spr_wight + x]);
+				}	
+		else
+		{
+			int draw_x ,draw_y;
+			for(uint32_t y = oy; y< oy+h; y++)
+				for(uint32_t x = ox ; x < ox+w ; x++)
+				{
+					for(uint32_t scale_x = 0;scale_x < scale ;scale_x++)
+						for(uint32_t scale_y = 0;scale_y < scale ;scale_y++)
+						{
+							draw_x = pos_x  + x * scale  +  scale_x;
+							draw_y = pos_y  + y * scale  +  scale_y;
+							if(draw_x>=0 && draw_x <1280 && draw_y >= 0 && draw_y < 720)
+								Draw(draw_x,draw_y,tmp_color[y * spr_wight + x]);
+						}
+				}	
+		}
 	}
 
 	virtual void Draw(int x, int y,  u32 rgba)
