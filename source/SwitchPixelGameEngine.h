@@ -709,14 +709,14 @@ public:
 
 	//Note that this doesn't handle {tmpx > width}, etc.
 	//str is UTF-8.
-	void draw_text(u32 x, u32 y, const char *str)
+	void draw_text(u32 x, u32 y, const char *str ,float scale )
 	{
 		ret = FT_Set_Char_Size(
 		face,	 /* handle to face object           */
 		0,		 /* char_width in 1/64th of points  */
-		24 * 64, /* char_height in 1/64th of points */
+		24 * 64 * scale, /* char_height in 1/64th of points */
 		0,		 /* horizontal device resolution    */
-		fontsize);	 /* vertical device resolution      */
+		fontsize );	 /* vertical device resolution      */
 		u32 tmpx = x;
 		FT_Error ret = 0;
 		FT_UInt glyph_index;
@@ -789,9 +789,9 @@ public:
 		SetFontColor(FG_WHITE);
 		SetFontSize(MEDIUM_FONT);
 	}
-	void DrawString(int x, int y, const char *str)
+	void DrawString(int x, int y, const char *str ,float scale = 1)
 	{
-		draw_text(x, y, str);
+		draw_text(x, y, str, scale);
 	}
 	void ClearScreen()
 	{

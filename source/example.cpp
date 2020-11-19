@@ -76,7 +76,7 @@ public:
         }
         char t1[50];
         sprintf(t1,"mouse pos is %d %d\nmouse released number is %d",mouse_pos_x,mouse_pos_y, sum);
-        DrawString(ScreenWidth()/2-200,ScreenHeight()/2 + 200,t1);
+        DrawString(ScreenWidth()/2-200,ScreenHeight()/2 + 200,t1,2);
         /**********************************************************************************/
         //DrawSprite(picture); 
         DrawPartialSprite(picture,200,200,100,100);
