@@ -65,12 +65,16 @@ int main()
 
 #pragma once
 #include <switch.h>
+
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_mixer.h>
 //C Stardand lib
 #include <math.h>
 #include <stdio.h>
 #include <string>
 #include <chrono>
 #include <png.h>
+
 extern "C"
 {
 #include <ft2build.h>
@@ -375,12 +379,6 @@ public:
 	}
 	void DrawRect(int x, int y, int w, int h, const u32 rgba)
 	{
-
-		if (x < 0) x = 0;
-		if (x + w >= m_nScreenWidth) x = m_nScreenWidth;
-		if (y < 0) y = 0;
-		if (y + h >= m_nScreenHeight) y = m_nScreenHeight;
-
 		DrawLine(x,y,x+w,y,rgba);
 		DrawLine(x+w,y,x+w,y+h,rgba);
 		DrawLine(x+w,y+h,x,y+h,rgba);
@@ -389,12 +387,6 @@ public:
 	}
 	void FillRect(int x, int y, int w, int h, const u32 rgba)
 	{
-
-		if (x < 0) x = 0;
-		if (x + w >= m_nScreenWidth) x = m_nScreenWidth;
-		if (y < 0) y = 0;
-		if (y + h >= m_nScreenHeight) y = m_nScreenHeight;
-
 		for (int _x = x; _x < x + w; _x++)
 			for (int _y = y; _y < y + h; _y++)
 				Draw(_x, _y, rgba);
@@ -913,6 +905,27 @@ public:
 	{
 		memcpy(framebuf,background,FB_WIDTH * FB_HEIGHT * sizeof(uint32_t));
 	}
+
+	void AudioPlay(const char* str)
+	{
+		//TODO: free audio
+		Mix_Music *audio = Mix_LoadMUS(str);
+		Mix_PlayMusic(audio, 1); //Play the audio file
+	}
+
+	void AudioInit()
+	{
+		SDL_Init(SDL_INIT_AUDIO);
+		Mix_Init(MIX_INIT_MP3);
+    	Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS, 4096);
+	}
+	void AudioDestroy()
+	{
+    	SDL_Quit();
+	}
+
+
+
 	bool MousebPressed() {return m_mouse[0].bPressed;}
 	bool MousebHeld() {return m_mouse[0].bHeld;}
 	bool MousebReleased() {return m_mouse[0].bReleased;}
@@ -924,7 +937,6 @@ public:
 	int ScreenWidth(){return m_nScreenWidth;}
 	int ScreenHeight(){return m_nScreenHeight;}
   
-public:
 	virtual bool OnUserCreate() {return true;};
 	virtual bool OnUserUpdate(float fElapsedTime) = 0;
 	virtual bool OnUserDestroy() { return true; }
@@ -944,9 +956,9 @@ protected:
 	int block_size_x;
 	int block_size_y;
 
+	//screen
 	Framebuffer fb;
     u32 framebuf_width = 0;
-
 	NWindow *win;
 	u32 stride;
 	u32 *framebuf;
@@ -957,25 +969,25 @@ protected:
 	PlFontData font;
 	FT_Library library;
 	FT_Face face;
+	RGBA* fontcolor;
+	uint32_t fontsize;
 
 	//keyboards
 	u64 kDown,kHeld,kUp;
-
-	//touchPosition
-	touchPosition* touch;
-	u32 touch_count,prev_touchcount = 0;
-	int mouse_pos_x ,mouse_pos_y;
-
-	//
 	struct sKeyState
 	{
 		bool bPressed;
 		bool bReleased;
 		bool bHeld;
 	}m_mouse[5];
+
+	//touchPosition
+	touchPosition* touch;
+	u32 touch_count,prev_touchcount = 0;
+	int mouse_pos_x ,mouse_pos_y;
+
   //image
 	uint32_t* background;
-	RGBA* fontcolor;
-	uint32_t fontsize;
+
 };
 

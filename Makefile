@@ -16,7 +16,7 @@ BUILD		:=	build
 SOURCES		:=	source
 #DATA		:=	data
 INCLUDES	:=	include
-ROMFS	:=	data
+ROMFS	:=	romfs
 
 #---------------------------------------------------------------------------------
 # options for code generation
@@ -26,14 +26,14 @@ ARCH	:=	-march=armv8-a+crc+crypto -mtune=cortex-a57 -mtp=soft -fPIE
 CFLAGS	:=	-g  -O2 -Wall -ffunction-sections \
 			$(ARCH) $(DEFINES) 
 
-CFLAGS	+=	$(INCLUDE) -D__SWITCH__ `freetype-config --cflags`
+CFLAGS	+=	$(INCLUDE) -D__SWITCH__ `freetype-config --cflags` `aarch64-none-elf-pkg-config --cflags SDL2_mixer`
 
 CXXFLAGS	:= $(CFLAGS) -fno-rtti -fno-exceptions -std=gnu++17
 
 ASFLAGS	:=	-g $(ARCH)
 LDFLAGS	=	-specs=$(DEVKITPRO)/libnx/switch.specs -g $(ARCH) -Wl,-Map,$(notdir $*.map)
 
-LIBS	:= -lnx `freetype-config --libs`
+LIBS	:= -lnx `freetype-config --libs` `aarch64-none-elf-pkg-config --libs SDL2_mixer`
 
 #---------------------------------------------------------------------------------
 # list of directories containing libraries, this must be the top level containing

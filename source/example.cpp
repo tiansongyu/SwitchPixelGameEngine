@@ -29,8 +29,9 @@ public:
     virtual bool OnUserCreate() override
     {
         picture = new SgeSprite(ScreenWidth()* 2 /3 , 0,"romfs:/image/maliao.png");
-
+        AudioInit();
         SetBackGround("romfs:/image/background.png");
+        AudioPlay("romfs:/audio/test.mp3");
         return true;
     }
     virtual bool OnUserUpdate(float fElapsedTime) override
@@ -80,6 +81,7 @@ public:
         /**********************************************************************************/
         //DrawSprite(picture); 
         DrawPartialSprite(picture,200,200,100,100);
+
         return true;
     }
     virtual bool OnUserDestroy() override
