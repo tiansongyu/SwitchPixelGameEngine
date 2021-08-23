@@ -6,10 +6,16 @@ jobs:
     runs-on: ubuntu-latest
     container: devkitpro/devkita64_devkitarm
     steps:
-    - uses: actions/checkout@v1
-    - name: Update repo.
-      run: |
-        git submodule update --init --recursive
+    
+    - name: 🧰 Checkout
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+        submodules: recursive
+    # - uses: actions/checkout@v1
+    # - name: Update repo.
+    #   run: |
+    #    git submodule update --init --recursive
         
     - name: Building SwitchPixelGameEngine
       run: |
