@@ -48,24 +48,24 @@ public:
         DrawCircle(ScreenWidth()/2,ScreenHeight()/2,ScreenWidth()/10,FG_GREEN);
         DrawString(ScreenWidth()/2, ScreenHeight()/2, s_str);  
         /**********************************************************************************/
-        //keyboard input 
-        if(KeyDown(KEY_UP) || KeyHeld(KEY_UP) ) 
+        //keyboard input
+        if (KeyDown(HidNpadButton_Up) || KeyHeld(HidNpadButton_Up))
         {
             picture->SetPosition(picture->GetPos_x(),picture->GetPos_y()-10);
         }
-        if(KeyDown(KEY_UP)) DrawString(0,ScreenHeight()/2,"UP KEY is down");
-        if(KeyUp(KEY_UP)) DrawString(0,ScreenHeight()/3,"UP KEY is kUp");
-        if(KeyHeld(KEY_UP)) DrawString(0,ScreenHeight()/4,"UP KEY is held");
+        if(KeyDown(HidNpadButton_Up)) DrawString(0,ScreenHeight()/2,"UP KEY is down");
+        if(KeyUp(HidNpadButton_Up)) DrawString(0,ScreenHeight()/3,"UP KEY is kUp");
+        if(KeyHeld(HidNpadButton_Up)) DrawString(0,ScreenHeight()/4,"UP KEY is held");
 
-        if(KeyDown(KEY_DOWN) || KeyHeld(KEY_DOWN)) 
+        if (KeyDown(HidNpadButton_Down) || KeyHeld(HidNpadButton_Down))
         {
             picture->SetPosition(picture->GetPos_x(),picture->GetPos_y()+10);
         }
-        if(KeyDown(KEY_LEFT) || KeyHeld(KEY_LEFT)) 
+        if (KeyDown(HidNpadButton_Left) || KeyHeld(HidNpadButton_Left))
         {
             picture->SetPosition(picture->GetPos_x()-10,picture->GetPos_y());
         }
-        if(KeyDown(KEY_RIGHT) || KeyHeld(KEY_RIGHT)) 
+        if (KeyDown(HidNpadButton_Right) || KeyHeld(HidNpadButton_Right))
         {
             picture->SetPosition(picture->GetPos_x()+10,picture->GetPos_y());
         }

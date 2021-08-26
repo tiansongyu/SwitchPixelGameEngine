@@ -795,9 +795,8 @@ public:
 		framebufferEnd(&fb);
 		while (appletMainLoop())
 		{
-			hidScanInput();
 			ClearScreen();
-			if (KeyDown(KEY_PLUS))
+			if (KeyDown(HidNpadButton_Plus))
 				break;
 			framebuf = (u32 *)framebufferBegin(&fb, &stride);
 			framebuf_width = stride / sizeof(u32);
@@ -814,7 +813,12 @@ public:
 
 		fontcolor = new RGBA();
 		//init mouse pos
-		touch = new touchPosition[5];
+		// Configure our supported input layout: a single player with standard controller styles
+		padConfigureInput(1, HidNpadStyleSet_NpadStandard);
+
+		// Initialize the default gamepad (which reads handheld mode inputs as well as the first connected controller)
+		padInitializeDefault(&pad);
+
 		rc = plInitialize(PlServiceType_User);
 		if (R_FAILED(rc))
         	fatalThrow(rc); 
@@ -841,31 +845,34 @@ public:
 			tp1 = tp2;
 			float fElapsedTime = elapsedTime.count();
 			// Scan all the inputs. This should be done once for each frame
-			hidScanInput();
+			padUpdate(&pad);
+
 			// hidKeysDown returns information about which buttons have been
 			// just pressed in this frame compared to the previous one
 			/*****************************************************************/
-			kDown = hidKeysDown(CONTROLLER_P1_AUTO);
-			kHeld = hidKeysHeld(CONTROLLER_P1_AUTO);
-			kUp = hidKeysUp(CONTROLLER_P1_AUTO);
+			kDown = padGetButtonsDown(&pad);
+			kHeld = padGetButtons(&pad);
+			kUp = padGetButtonsUp(&pad);
+			if (kDown & HidNpadButton_Plus)
+				break; // break in order to return to hbmenu
 
-			if (KeyDown(KEY_PLUS))
-				break;
 			/*****************************************************************/
-			//touch input
-			touch_count = hidTouchCount();
-			//不知道当touch_count大于0时代表的值是什么，所以先处理0⑧
-			//当抬起时，touch_count为零，此时不能进入for循环，所以写在循环之外
-			if(touch_count == 0 && prev_touchcount >0)m_mouse[0].bReleased = true;
-			else m_mouse[0].bReleased = false;
-			if(touch_count != 0 || prev_touchcount != 0)
+
+			if (hidGetTouchScreenStates(&state, 1))
 			{
+				if (state.count != prev_touchcount)
+				{
+					if (touch_count == 0 && prev_touchcount > 0)
+						m_mouse[0].bReleased = true;
+					else
+						m_mouse[0].bReleased = false;
+				}
+
 				for(u32 i = 0 ;i<touch_count ;i++)
 				{
 					//update pos
-					hidTouchRead(&touch[i],i);
-					if(touch[i].px >=0 && touch[i].px < 1280)mouse_pos_x = touch[i].px;
-					if(touch[i].py >=0 && touch[i].py < 720)mouse_pos_y = touch[i].py;
+					if(state.touches[i].x >=0 && state.touches[i].x < 1280)mouse_pos_x = state.touches[i].x;
+					if(state.touches[i].y >=0 && state.touches[i].y < 720)mouse_pos_y = state.touches[i].y;
 					//end
 					if(prev_touchcount == 0 && touch_count > 0){m_mouse[i].bPressed = true;m_mouse[i].bHeld = false;m_mouse[i].bReleased = false;}
 					else if(prev_touchcount > 0 && touch_count > 0){m_mouse[i].bPressed = false;m_mouse[i].bHeld = true;m_mouse[i].bReleased = false;}
@@ -873,7 +880,6 @@ public:
 			}
 			/*****************************************************************/
 			// Retrieve the framebuffer
-
 			framebuf = (u32 *)framebufferBegin(&fb, &stride);
 			framebuf_width = stride / sizeof(u32);
 			
@@ -925,14 +931,14 @@ public:
 	}
 
 
-
+public:
 	bool MousebPressed() {return m_mouse[0].bPressed;}
 	bool MousebHeld() {return m_mouse[0].bHeld;}
 	bool MousebReleased() {return m_mouse[0].bReleased;}
 
-	bool KeyDown(HidControllerKeys key) {return (kDown & key);}
-	bool KeyHeld(HidControllerKeys key) {return (kHeld & key);}
-	bool KeyUp(HidControllerKeys key) {return (kUp & key);}
+	bool KeyDown(HidNpadButton key) { return (kDown & key); }
+	bool KeyHeld(HidNpadButton key) { return (kHeld & key); }
+	bool KeyUp(HidNpadButton key) { return (kUp & key); }
 
 	int ScreenWidth(){return m_nScreenWidth;}
 	int ScreenHeight(){return m_nScreenHeight;}
@@ -947,7 +953,6 @@ public:
 		FT_Done_FreeType(library);
 		plExit();
 		romfsExit();
-		delete[] touch;
 		delete fontcolor;
 	}
 protected:
@@ -973,6 +978,8 @@ protected:
 	uint32_t fontsize;
 
 	//keyboards
+	PadState pad;
+
 	u64 kDown,kHeld,kUp;
 	struct sKeyState
 	{
@@ -982,8 +989,9 @@ protected:
 	}m_mouse[5];
 
 	//touchPosition
-	touchPosition* touch;
-	u32 touch_count,prev_touchcount = 0;
+	u32 touch_count = 0;
+	s32 prev_touchcount = 0;
+	HidTouchScreenState state = {0};
 	int mouse_pos_x ,mouse_pos_y;
 
   //image
