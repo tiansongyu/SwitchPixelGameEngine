@@ -4,7 +4,7 @@ on: [push]
 jobs:
   SwitchPixelGameEngine:
     runs-on: ubuntu-latest
-    container: devkitpro/devkita64_devkitarm
+    container: devkitpro/devkita64:latest
     steps:
     
     - name: 🧰 Checkout
