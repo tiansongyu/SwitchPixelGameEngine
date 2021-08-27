@@ -1,4 +1,4 @@
-// Copyright (C) 2020 tiansongyu
+// Copyright (C) 2020-2021 tiansongyu
 //
 // This file is part of SwitchPixelGameEngine.
 //
@@ -17,8 +17,8 @@
 //
 // SwitchPixelGameEngine is actively maintained and developed!
 
-//Version: 0.2
-// Last Updated: 2020/11/10
+//Version: 0.3
+// Last Updated: 2021/8/27
 #include "SwitchPixelGameEngine.h"
 class Demo : public SwitchPixelGameEngine
 {
